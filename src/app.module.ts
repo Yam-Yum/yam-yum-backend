@@ -1,16 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { S3UploadModule } from './s3-upload/s3-upload.module';
 
 @Module({
-  imports: [
-    UsersModule,
-    ConfigModule.forRoot({ isGlobal: true }),
-    S3UploadModule,
-  ],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), S3UploadModule],
   controllers: [AppController],
   providers: [AppService],
 })
