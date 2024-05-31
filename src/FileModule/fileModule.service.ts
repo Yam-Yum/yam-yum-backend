@@ -10,11 +10,12 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
 
 @Injectable()
-export class S3UploadService {
-  private BUCKET_NAME = this.configService.get('BUCKET_NAME');
-  private BUCKET_REGION = this.configService.get('BUCKET_REGION');
-  private ACCESS_KEY = this.configService.get('ACCESS_KEY');
-  private SECRET_ACCESS_KEY = this.configService.get('SECRET_ACCESS_KEY');
+export class FileService {
+  private readonly BUCKET_NAME = this.configService.get('BUCKET_NAME');
+  private readonly BUCKET_REGION = this.configService.get('BUCKET_REGION');
+  private readonly ACCESS_KEY = this.configService.get('ACCESS_KEY');
+  private readonly SECRET_ACCESS_KEY =
+    this.configService.get('SECRET_ACCESS_KEY');
 
   private s3 = new S3Client({
     credentials: {
