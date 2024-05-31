@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id              String   @id() @default(uuid())
+  first_name      String
+  last_name       String
+  phone_number    String   @unique()
+  email           String   @unique()
+  date_of_birth   DateTime
+  gender          Boolean
+  profile_picture String
+  role            RoleType
+
+  // timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  // relations
+  wallet  wallet?
+  address address[]
+  order   order[]
+  recipe  recipe[]
+  cart    cart?
+  review  review?
+}
+
+enum RoleType {
+  guest
+  client
+  chief
+  admin
+}
+
+model wallet {
+  id     String @id @default(uuid())
+  amount Int    @default(0)
+
+  // relations
+  user    user   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id String @unique
+}
+
+model address {
+  id          String      @id @default(uuid())
+  description String
+  longitude   Decimal
+  latitude    Decimal
+  type        AddressType
+
+  // timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  // relations
+  user     user   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id  String @unique
+  order    order  @relation(fields: [order_id], references: [id])
+  order_id String @unique
+}
+
+enum AddressType {
+  home
+  office
+  other
+}
+
+model order {
+  id             String            @id @default(uuid())
+  status         OrderStatusType
+  total_price    Decimal
+  payment_method PaymentMethodType
+
+  // timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  // relations
+  user         user           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id      String         @unique
+  address      address?
+  order_recipe order_recipe[]
+}
+
+enum OrderStatusType {
+  placed
+  preparing
+  prepared
+  out_for_delivery
+  deliverd
+  cancelled
+}
+
+enum PaymentMethodType {
+  cash
+  credit
+}
+
+model recipe {
+  id               String  @id @default(uuid())
+  name             String
+  description      String
+  price            Decimal
+  preparation_time Int
+  avilability      Boolean
+
+  // timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  // relations
+  order_recipe order_recipe[]
+
+  user     user   @relation(fields: [chief_id], references: [id], onDelete: Cascade)
+  chief_id String @unique
+
+  category    category @relation(fields: [category_id], references: [id])
+  category_id String
+
+  recipe_image recipe_image[]
+
+  cart cart?
+
+  review review?
+}
+
+model order_recipe {
+  id String @id @default(uuid())
+
+  // relations
+  recipe    recipe @relation(fields: [recipe_id], references: [id])
+  recipe_id String
+
+  order    order  @relation(fields: [order_id], references: [id])
+  order_id String
+}
+
+model category {
+  id        String @id @default(uuid())
+  name      String
+  image_url String
+
+  // relations
+  recipe recipe[]
+}
+
+model recipe_image {
+  id        String @id @default(uuid())
+  image_url String
+
+  // relations
+  recipe    recipe @relation(fields: [recipe_id], references: [id])
+  recipe_id String
+}
+
+model cart {
+  id          String  @id @default(uuid())
+  total_price Decimal
+
+  // relations
+  user    user   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id String @unique
+
+  recipe    recipe @relation(fields: [recipe_id], references: [id])
+  recipe_id String @unique
+}
+
+model review {
+  id      String @id @default(uuid())
+  comment String
+  rate    Int
+
+  // timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  // relations
+  user    user   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id String @unique
+
+  recipe    recipe @relation(fields: [recipe_id], references: [id])
+  recipe_id String @unique
+}
+
+model chief_request_application {
+  id             String                            @id @default(uuid())
+  message        String
+  status         ChiefRequestApplicationStatusType
+  request_number Int                               @unique @default(autoincrement())
+
+  // timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+}
+
+enum ChiefRequestApplicationStatusType {
+  pending
+  approved
+  rejected
+}
