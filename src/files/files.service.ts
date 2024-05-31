@@ -10,7 +10,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
 
 @Injectable()
-export class FileService {
+export class FilesService {
   private readonly BUCKET_NAME = this.configService.get('BUCKET_NAME');
   private readonly BUCKET_REGION = this.configService.get('BUCKET_REGION');
   private readonly ACCESS_KEY = this.configService.get('ACCESS_KEY');
