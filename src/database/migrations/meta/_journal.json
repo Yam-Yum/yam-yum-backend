@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1717216260284,
+      "tag": "0000_users_and_address_init",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1717218636723,
+      "tag": "0001_recipe_and_category",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1717220230548,
+      "tag": "0002_cart_and_order",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1717221016231,
+      "tag": "0003_review_chiefApplication_and_wallet",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1717221065647,
+      "tag": "0004_wallet",
+      "breakpoints": true
+    }
+  ]
+}
