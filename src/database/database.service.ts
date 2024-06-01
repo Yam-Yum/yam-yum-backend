@@ -1,15 +1,21 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { drizzle, MySql2Database } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
 
 @Injectable()
-export class DatabaseService extends PrismaClient implements OnModuleInit {
+export class DatabaseService implements OnModuleInit {
+  public database: MySql2Database;
+
+  constructor(private readonly configService: ConfigService) {}
+
   async onModuleInit() {
-    await this.$connect()
-      .then(() => {
-        console.log('database connected');
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const connection = await mysql.createConnection({
+      host: 'host',
+      user: 'user',
+      database: 'database',
+    });
+
+    this.database = drizzle(connection);
   }
 }
