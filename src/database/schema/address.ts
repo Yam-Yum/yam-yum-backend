@@ -13,7 +13,8 @@ const address = mysqlTable('address', {
     .primaryKey()
     .unique()
     .default(sql`(uuid())`),
-  description: varchar('description', { length: 255 }).notNull(),
+  addressLine1: varchar('addressLine1', { length: 255 }).notNull(),
+  addressLine2: varchar('addressLine2', { length: 255 }),
   longitude: varchar('longitude', { length: 255 }).notNull(),
   latitude: varchar('latitude', { length: 255 }).notNull(),
   type: mysqlEnum('type', ['home', 'office', 'other']).notNull(),

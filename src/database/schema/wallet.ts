@@ -1,4 +1,4 @@
-import { mysqlTable, timestamp, varchar } from 'drizzle-orm/mysql-core';
+import { double, mysqlTable, timestamp, varchar } from 'drizzle-orm/mysql-core';
 import { relations, sql } from 'drizzle-orm';
 import user from './user';
 
@@ -7,7 +7,7 @@ const wallet = mysqlTable('wallet', {
     .primaryKey()
     .unique()
     .default(sql`(uuid())`),
-  balance: varchar('balance', { length: 255 }).notNull(),
+  balance: double('balance', { scale: 2 }).notNull().default(0),
   userId: varchar('user_id', { length: 255 })
     .notNull()
     .references(() => user.id),

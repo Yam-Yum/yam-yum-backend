@@ -1,7 +1,7 @@
 import {
   bigint,
   boolean,
-  decimal,
+  double,
   mysqlTable,
   text,
   timestamp,
@@ -13,6 +13,7 @@ import category from './category';
 import recipeImage from './recipe_image';
 import orderRecipe from './order_recipe';
 import review from './review';
+import cartRecipe from './cart_recipe';
 
 const recipe = mysqlTable('recipe', {
   id: varchar('id', { length: 255 })
@@ -21,7 +22,8 @@ const recipe = mysqlTable('recipe', {
     .default(sql`(uuid())`),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description').notNull(),
-  price: decimal('price').notNull(),
+  price: double('price', { scale: 2 }).notNull(),
+  rate: double('rate', { scale: 2 }).notNull().default(0),
   preparationTimeInSeconds: bigint('preparation_time_in_seconds', {
     mode: 'number',
   }).notNull(),
@@ -46,6 +48,7 @@ export const recipeRelations = relations(recipe, ({ one, many }) => ({
   images: many(recipeImage),
   orderRecipes: many(orderRecipe),
   reviews: many(review),
+  carts: many(cartRecipe),
 }));
 
 export default recipe;

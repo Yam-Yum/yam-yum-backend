@@ -15,7 +15,7 @@ const review = mysqlTable('review', {
     .unique()
     .default(sql`(uuid())`),
   comment: text('comment').notNull(),
-  rating: int('rating').notNull(),
+  rating: int('rating', { unsigned: true }).notNull(),
   recipeId: varchar('recipe_id', { length: 255 })
     .notNull()
     .references(() => recipe.id),

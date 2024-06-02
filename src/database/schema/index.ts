@@ -9,3 +9,4 @@ export { default as cart, cartRelations } from './cart';
 export { default as review, reviewRelations } from './review';
 export { default as chiefRequestApplication } from './chief_request_application';
 export { default as wallet } from './wallet';
+export { default as cartRecipe, cartRecipeRelations } from './cart_recipe';

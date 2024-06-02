@@ -1,4 +1,5 @@
 import {
+  double,
   mysqlEnum,
   mysqlTable,
   timestamp,
@@ -22,7 +23,7 @@ const order = mysqlTable('order', {
     'cancelled',
   ]).notNull(),
   paymentMethod: mysqlEnum('payment_method', ['cash', 'card']).notNull(),
-  totalPrice: varchar('total_price', { length: 255 }).notNull(),
+  totalPrice: double('total_price', { scale: 2 }).notNull(),
   addressId: varchar('address_id', { length: 255 })
     .notNull()
     .references(() => address.id),
