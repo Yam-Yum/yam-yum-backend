@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import {
   Injectable,
   InternalServerErrorException,
@@ -12,10 +13,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { User, UserRole } from '../users/entities/user.entity';
 import dataSource from '../database/data-source';
 import { RefreshToken } from '../users/entities/refresh_token.entity';
+import { generateDate } from 'src/utils/data-generator';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
   private async searchForUser(searchObj: { [key: string]: string }) {
     const user = await dataSource.getRepository(User).findOne({
       where: {
@@ -28,10 +33,7 @@ export class AuthService {
     return user;
   }
 
-  private async validateUserCredentials(
-    loginDto: LoginDTO,
-    userPassword: string,
-  ) {
+  private async validateUserPassword(loginDto: LoginDTO, userPassword: string) {
     console.log('userPassword: ', userPassword);
     console.log('loginDto.password: ', loginDto.password);
     return await bcrypt.compare(loginDto.password, userPassword);
@@ -41,15 +43,32 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  private async generateRefreshToken(userId: string, expirationDate: string) {
+  private async generateRefreshToken(userId: string, expirationDate: number) {
     console.log('userId: ', userId);
     const refreshTokenUuid = uuidv4();
+
     try {
-      await dataSource.getRepository(RefreshToken).insert({
-        user: { id: userId },
-        refreshToken: refreshTokenUuid,
-        expirationDate,
-      });
+      let existingRefreshToken = await dataSource
+        .getRepository(RefreshToken)
+        .findOne({
+          where: { user: { id: userId } },
+        });
+
+      if (existingRefreshToken) {
+        // Update the existing refresh token
+        existingRefreshToken.refreshToken = refreshTokenUuid;
+        existingRefreshToken.expirationDate = generateDate(expirationDate);
+      } else {
+        // Create a new refresh token
+        existingRefreshToken = dataSource.getRepository(RefreshToken).create({
+          user: { id: userId },
+          refreshToken: refreshTokenUuid,
+          expirationDate: generateDate(expirationDate),
+        });
+      }
+
+      // Save the refresh token update or create
+      await dataSource.getRepository(RefreshToken).save(existingRefreshToken);
     } catch (error) {
       console.log('error: ', error);
       throw new InternalServerErrorException(
@@ -71,7 +90,7 @@ export class AuthService {
     const foundUser = await this.searchForUser(searchObj);
     console.log('foundUser: ', foundUser);
     // 2) Validate credentials
-    const validCredentials = await this.validateUserCredentials(
+    const validCredentials = await this.validateUserPassword(
       loginDto,
       foundUser.password,
     );
@@ -88,7 +107,7 @@ export class AuthService {
 
     const refreshToken = await this.generateRefreshToken(
       foundUser.id,
-      '2024-06-05T00:45:00Z',
+      this.configService.get('REFRESH_TOKEN_EXPIRATION'),
     );
     const tokens = {
       accessToken,
@@ -96,4 +115,6 @@ export class AuthService {
     };
     return tokens;
   }
+
+  public async protect() {}
 }
