@@ -4,9 +4,10 @@ import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { RefreshToken } from './entities/refresh_token.entity';
+import { Registration } from './entities/registration.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, RefreshToken])],
+  imports: [TypeOrmModule.forFeature([User, RefreshToken, Registration])],
   controllers: [UsersController],
   providers: [UsersService],
 })

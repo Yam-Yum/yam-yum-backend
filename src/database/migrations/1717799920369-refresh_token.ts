@@ -16,12 +16,8 @@ export class RefreshToken1717799920369 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE \`refresh_tokens\` DROP FOREIGN KEY \`FK_610102b60fea1455310ccd299de\``,
     );
-    await queryRunner.query(
-      `DROP INDEX \`REL_610102b60fea1455310ccd299d\` ON \`refresh_tokens\``,
-    );
-    await queryRunner.query(
-      `DROP INDEX \`IDX_84519890ff1135ab93aba6546f\` ON \`refresh_tokens\``,
-    );
+    await queryRunner.query(`DROP INDEX \`REL_610102b60fea1455310ccd299d\` ON \`refresh_tokens\``);
+    await queryRunner.query(`DROP INDEX \`IDX_84519890ff1135ab93aba6546f\` ON \`refresh_tokens\``);
     await queryRunner.query(`DROP TABLE \`refresh_tokens\``);
   }
 }

@@ -1,9 +1,4 @@
-import {
-  PipeTransform,
-  Injectable,
-  BadRequestException,
-  Global,
-} from '@nestjs/common';
+import { PipeTransform, Injectable, BadRequestException, Global } from '@nestjs/common';
 
 @Global()
 @Injectable()
