@@ -73,7 +73,7 @@ backend server for yam-yum system
 
 - Node.js 20.0.0 or higher
 - NPM 8.0.0 or higher
-- You can Download the latest version of Node from [here](https://nodejs.org/en/download/)
+- You can Download the latest version of Node from [here](https://nodejs.org/en/download/prebuilt-installer)
 
 1- Clone the repository
 
