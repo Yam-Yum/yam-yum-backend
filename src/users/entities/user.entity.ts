@@ -2,10 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
-
+import { Registration } from './registration.entity';
+import { RefreshToken } from './refresh_token.entity';
 export enum UserRole {
   ADMIN = 'admin',
   ClIENT = 'client',
@@ -35,13 +38,13 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string;
-
   @Column({ unique: true })
   phoneNumber: string;
 
   @Column()
+  password: string;
+
+  @Column({ nullable: true })
   profilePicture: string;
 
   @Column({
@@ -66,4 +69,11 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Relations
+  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshToken: Relation<RefreshToken>;
+
+  @OneToOne(() => Registration, (registration) => registration.user)
+  registration: Relation<Registration>;
 }

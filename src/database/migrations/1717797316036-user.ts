@@ -10,15 +10,9 @@ export class User1717797316036 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP INDEX \`IDX_1e3d0240b49c40521aaeb95329\` ON \`users\``,
-    );
-    await queryRunner.query(
-      `DROP INDEX \`IDX_97672ac88f789774dd47f7c8be\` ON \`users\``,
-    );
-    await queryRunner.query(
-      `DROP INDEX \`IDX_fe0bb3f6520ee0469504521e71\` ON \`users\``,
-    );
+    await queryRunner.query(`DROP INDEX \`IDX_1e3d0240b49c40521aaeb95329\` ON \`users\``);
+    await queryRunner.query(`DROP INDEX \`IDX_97672ac88f789774dd47f7c8be\` ON \`users\``);
+    await queryRunner.query(`DROP INDEX \`IDX_fe0bb3f6520ee0469504521e71\` ON \`users\``);
     await queryRunner.query(`DROP TABLE \`users\``);
   }
 }
