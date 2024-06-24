@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["nestjs", "typeorm", "uuidv"]
+  "cSpell.words": ["nestjs", "typeorm", "uuidv"],
+  "conventionalCommits.scopes": ["swagger"]
 }
