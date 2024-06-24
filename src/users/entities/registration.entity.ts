@@ -1,19 +1,29 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity('refresh_tokens')
-export class RefreshToken {
+@Entity('phone_numbers')
+export class Registration {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ unique: true })
-  refreshToken: string;
+  phoneNumber: string;
 
   @Column()
-  expirationDate: Date;
+  otp: string;
 
-  @OneToOne(() => User, (user) => user.refreshToken, {
+  @Column()
+  otpExpireIn: Date;
+
+  @Column()
+  otpConfirmed: boolean;
+
+  @Column({ default: false })
+  verified: boolean;
+
+  @OneToOne(() => User, (user) => user.registration, {
     onDelete: 'CASCADE',
+    nullable: true,
   })
   @JoinColumn({ name: 'userId' })
   user: Relation<User>;

@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-} from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import * as crypto from 'crypto';
@@ -12,13 +8,9 @@ import * as crypto from 'crypto';
 @Injectable()
 export class FilesService {
   private readonly BUCKET_NAME = this.configService.get('AWS_S3_BUCKET_NAME');
-  private readonly BUCKET_REGION = this.configService.get(
-    'AWS_S3_BUCKET_REGION',
-  );
+  private readonly BUCKET_REGION = this.configService.get('AWS_S3_BUCKET_REGION');
   private readonly ACCESS_KEY = this.configService.get('AWS_S3_ACCESS_KEY');
-  private readonly SECRET_ACCESS_KEY = this.configService.get(
-    'AWS_S3_SECRET_ACCESS_KEY',
-  );
+  private readonly SECRET_ACCESS_KEY = this.configService.get('AWS_S3_SECRET_ACCESS_KEY');
 
   private s3 = new S3Client({
     credentials: {

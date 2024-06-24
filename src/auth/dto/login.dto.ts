@@ -1,13 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Allow,
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { Allow, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class LoginDTO {
+export class LoginDto {
   @IsOptional()
   @IsString()
   @Allow({})
