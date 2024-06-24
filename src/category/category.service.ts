@@ -19,16 +19,12 @@ export class CategoryService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(
-    createCategoryDto: CreateCategoryDto,
-    image: Express.Multer.File,
-  ) {
+  async create(createCategoryDto: CreateCategoryDto, image: Express.Multer.File) {
     try {
       const { name } = createCategoryDto;
 
       // Upload Category Image To S3
-      const categoryImageNameOnServer =
-        await this.filesService.uploadImageToS3(image);
+      const categoryImageNameOnServer = await this.filesService.uploadImageToS3(image);
 
       // Create New Category
       return await this.categoryRepository.save({
@@ -37,10 +33,7 @@ export class CategoryService {
       });
     } catch (error) {
       // Checks if category name already exists ? Throw Duplicate Error: Throw Server Error
-      if (
-        error instanceof QueryFailedError &&
-        error.message.includes('Duplicate entry')
-      ) {
+      if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
         throw new ConflictException('Category name already exists');
       } else {
         throw new InternalServerErrorException('Failed to create category');
@@ -48,7 +41,7 @@ export class CategoryService {
     }
   }
 
-  async findAll() {
+  async getList() {
     try {
       let allCategories = await this.categoryRepository.find();
 
@@ -58,9 +51,7 @@ export class CategoryService {
           ? await Promise.all(
               allCategories.map(async (category) => {
                 if (category.image)
-                  category.image = await this.filesService.getImageFromS3(
-                    category.image,
-                  );
+                  category.image = await this.filesService.getImageFromS3(category.image);
 
                 delete category.isActive;
                 return category;
@@ -73,15 +64,14 @@ export class CategoryService {
     throw new InternalServerErrorException('Failed to retrieve categories');
   }
 
-  async findOne(id: string) {
+  async get(id: string) {
     try {
       const category = await this.categoryRepository.findOneBy({ id });
 
       if (!category) throw new NotFoundException('Category not found');
 
       // Get Image from S3
-      if (category.image)
-        category.image = await this.filesService.getImageFromS3(category.image);
+      if (category.image) category.image = await this.filesService.getImageFromS3(category.image);
 
       delete category.isActive;
 
@@ -97,21 +87,16 @@ export class CategoryService {
 
       if (image) {
         // Upload Category Image To S3
-        const categoryImageNameOnServer =
-          await this.filesService.uploadImageToS3(image);
+        const categoryImageNameOnServer = await this.filesService.uploadImageToS3(image);
 
         updateCategoryResult = await this.categoryRepository.update(id, {
           ...updateCategoryDto,
           image: categoryImageNameOnServer || null,
         });
       } else {
-        updateCategoryResult = await this.categoryRepository.update(
-          id,
-          updateCategoryDto,
-        );
+        updateCategoryResult = await this.categoryRepository.update(id, updateCategoryDto);
       }
-      if (updateCategoryResult.affected === 0)
-        throw new NotFoundException('Category not found');
+      if (updateCategoryResult.affected === 0) throw new NotFoundException('Category not found');
 
       return { id };
     } catch (error) {
@@ -125,8 +110,7 @@ export class CategoryService {
         isActive: false,
       });
 
-      if (updateCategoryResult.affected === 0)
-        throw new NotFoundException('Category not found');
+      if (updateCategoryResult.affected === 0) throw new NotFoundException('Category not found');
 
       return { id };
     } catch (error) {

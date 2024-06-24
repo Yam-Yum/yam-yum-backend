@@ -33,14 +33,14 @@ export class CategoryController {
 
   @SkipAuth()
   @Get()
-  async findAll() {
-    return this.categoryService.findAll();
+  async getList() {
+    return this.categoryService.getList();
   }
 
   @SkipAuth()
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(id);
+  async get(@Param('id') id: string) {
+    return this.categoryService.get(id);
   }
 
   @Patch(':id')
