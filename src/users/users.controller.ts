@@ -1,14 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateAddressDto } from './dto/create-address.dto';
 
 @ApiTags('User')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  // Address Endpoints
+  @Get('addresses')
+  async getAddresses(@Query('userId') userId: string) {
+    return await this.usersService.getAddresses(userId);
+  }
+
+  @Post('addresses')
+  async saveAdress(@Query('userId') userId: string, @Body() createAddressDto: CreateAddressDto) {
+    return await this.usersService.saveAddress(userId, createAddressDto);
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
