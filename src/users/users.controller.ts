@@ -18,7 +18,7 @@ export class UsersController {
   }
 
   @Post('addresses')
-  async saveAdress(@Query('userId') userId: string, @Body() createAddressDto: CreateAddressDto) {
+  async saveAddress(@Query('userId') userId: string, @Body() createAddressDto: CreateAddressDto) {
     return await this.usersService.saveAddress(userId, createAddressDto);
   }
 
