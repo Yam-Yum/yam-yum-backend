@@ -9,6 +9,7 @@ import { dataSourceOptions } from './database/data-source';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
 import { JwtAuthGuard } from './auth/guards/jwt.guard';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { JwtAuthGuard } from './auth/guards/jwt.guard';
     UsersModule,
     AuthModule,
     CategoryModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [
