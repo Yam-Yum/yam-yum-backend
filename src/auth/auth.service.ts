@@ -81,6 +81,15 @@ export class AuthService {
       throw new BadRequestException('Phone number already used');
     }
 
+    //  2.5) check if email already used
+    const userByEmail = await dataSource.getRepository(User).findOne({
+      where: { email: signup.email },
+    });
+
+    if (userByEmail) {
+      throw new BadRequestException('Email already used');
+    }
+
     console.log('new Date(signup.dateOfBirth): ', new Date(signup.dateOfBirth));
     //  3) create user
     const user = await dataSource.getRepository(User).save({
