@@ -23,8 +23,9 @@ export class CreateAddressDto {
   @IsString()
   city?: string;
 
+  @IsOptional()
   @IsString()
-  street: string;
+  street?: string;
 
   @IsOptional()
   @IsString()

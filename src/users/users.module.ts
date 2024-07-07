@@ -6,7 +6,7 @@ import { User } from './entities/user.entity';
 import { RefreshToken } from './entities/refresh_token.entity';
 import { Registration } from './entities/registration.entity';
 import dataSource from 'src/database/data-source';
-import { AddressProvider } from './provider/address.provider';
+import { AddressProvider } from './providers/address.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, RefreshToken, Registration])],
