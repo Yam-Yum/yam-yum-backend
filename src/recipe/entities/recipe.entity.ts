@@ -42,7 +42,7 @@ export class Recipe {
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'double' })
+  @Column({ type: 'int' })
   preparationTimeInMinutes: number;
 
   @Column({ type: 'enum', enum: RecipeSize, default: RecipeSize.Small })
