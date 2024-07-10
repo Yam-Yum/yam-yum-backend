@@ -11,6 +11,8 @@ import {
 import { Registration } from './registration.entity';
 import { RefreshToken } from './refresh_token.entity';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
+import { Address } from './address.entity';
+
 export enum UserRole {
   ADMIN = 'admin',
   ClIENT = 'client',
@@ -81,4 +83,7 @@ export class User {
 
   @OneToMany(() => Recipe, (recipe) => recipe.author)
   recipes: Relation<Recipe[]>;
+  
+  @OneToMany(() => Address, (address) => address.user)
+  addresses: Relation<Address>[];
 }
