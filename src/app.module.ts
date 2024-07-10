@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
 import { JwtAuthGuard } from './auth/guards/jwt.guard';
 import { CartModule } from './cart/cart.module';
+import { RecipeModule } from './recipe/recipe.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CartModule } from './cart/cart.module';
     AuthModule,
     CategoryModule,
     CartModule,
+    RecipeModule,
   ],
   controllers: [AppController],
   providers: [

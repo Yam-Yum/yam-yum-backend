@@ -1,8 +1,11 @@
+import { Recipe } from 'src/recipe/entities/recipe.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -25,4 +28,8 @@ export class Category {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Relations
+  @OneToMany(() => Recipe, (recipe) => recipe.category)
+  recipes: Relation<Recipe[]>;
 }
