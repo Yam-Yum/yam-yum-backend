@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Relation,
@@ -9,6 +10,7 @@ import {
 } from 'typeorm';
 import { Registration } from './registration.entity';
 import { RefreshToken } from './refresh_token.entity';
+import { Address } from './address.entity';
 export enum UserRole {
   ADMIN = 'admin',
   ClIENT = 'client',
@@ -76,4 +78,7 @@ export class User {
 
   @OneToOne(() => Registration, (registration) => registration.user)
   registration: Relation<Registration>;
+
+  @OneToMany(() => Address, (address) => address.user)
+  addresses: Relation<Address>[];
 }

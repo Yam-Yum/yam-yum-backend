@@ -5,10 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { RefreshToken } from './entities/refresh_token.entity';
 import { Registration } from './entities/registration.entity';
+import dataSource from 'src/database/data-source';
+import { AddressProvider } from './providers/address.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, RefreshToken, Registration])],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, ...AddressProvider, { provide: 'DATA_SOURCE', useValue: dataSource }],
+  exports: [...AddressProvider],
 })
 export class UsersModule {}

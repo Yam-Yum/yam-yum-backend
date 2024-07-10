@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { categoryProviderToken } from './provider/category.provider';
+import { categoryProviderToken } from './providers/category.provider';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 
