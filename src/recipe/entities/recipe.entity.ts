@@ -14,6 +14,7 @@ import {
 } from 'typeorm';
 import { RecipeImage } from './recipe-image.entity';
 import { RecipeVideo } from './recipe-video.entity';
+import { CartItem } from 'src/cart/entities/cartItem.entity';
 
 export enum RecipeStatus {
   Draft = 'Draft',
@@ -80,4 +81,7 @@ export class Recipe {
   @ManyToOne(() => User, (user) => user.recipes)
   @JoinColumn({ name: 'authorId' })
   author: Relation<User>;
+
+  @OneToMany(() => CartItem, (cartItem) => cartItem.recipe)
+  cartItems: Relation<CartItem>[];
 }
