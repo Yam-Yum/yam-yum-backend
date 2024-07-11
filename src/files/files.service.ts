@@ -22,14 +22,14 @@ export class FilesService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async uploadImageToS3(file: Express.Multer.File) {
-    // NOTE We can resize image here before sending it to AWS
+  async uploadFileToS3(file: Express.Multer.File) {
+    //TODO: NOTE We can resize File here before sending it to AWS
 
-    const randonImageName = this.randomImageName();
+    const randomFileName = this.randomFileName();
 
     const params = {
       Bucket: this.BUCKET_NAME,
-      Key: randonImageName,
+      Key: randomFileName,
       Body: file.buffer,
       ContentType: file.mimetype,
     };
@@ -37,23 +37,23 @@ export class FilesService {
     const command = new PutObjectCommand(params);
     await this.s3.send(command);
 
-    return randonImageName;
+    return randomFileName;
   }
 
-  async getImageFromS3(imageName: string) {
+  async getFileFromS3(FileName: string) {
     const params = {
       Bucket: this.BUCKET_NAME,
-      Key: imageName,
+      Key: FileName,
     };
 
     const command = new GetObjectCommand(params);
 
-    const imageUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
+    const FileUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
 
-    return imageUrl;
+    return FileUrl;
   }
 
-  private randomImageName(bytes = 32) {
+  private randomFileName(bytes = 32) {
     return crypto.randomBytes(bytes).toString('hex');
   }
 }

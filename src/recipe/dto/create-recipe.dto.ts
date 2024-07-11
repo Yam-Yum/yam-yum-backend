@@ -22,6 +22,12 @@ export class CreateRecipeDto {
   @IsNotEmpty()
   price: number;
 
+  @IsNotEmpty()
+  Images: File[];
+
+  @IsOptional()
+  video?: File;
+
   @IsUUID()
   @IsNotEmpty()
   categoryId: string;

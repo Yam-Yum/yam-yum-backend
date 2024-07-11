@@ -66,11 +66,10 @@ export class Recipe {
 
   // Relations
   @OneToMany(() => RecipeImage, (recipeImage) => recipeImage.recipe)
-  @JoinColumn({ name: 'recipeImageId' })
   images: Relation<RecipeImage[]>;
 
   @OneToOne(() => RecipeVideo, (recipeVideo) => recipeVideo.recipe)
-  @JoinColumn({ name: 'recipeVideoId' })
+  @JoinColumn({ name: 'videoId' })
   video: Relation<RecipeVideo>;
 
   @ManyToOne(() => Category, (category) => category.recipes)
