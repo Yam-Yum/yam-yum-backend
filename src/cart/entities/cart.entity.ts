@@ -18,7 +18,9 @@ export class Cart {
   id: string;
 
   // Relations
-  @OneToOne(() => User, (user) => user.cart)
+  @OneToOne(() => User, (user) => user.cart, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   user: Relation<User>;
 
