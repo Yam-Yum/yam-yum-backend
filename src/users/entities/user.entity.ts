@@ -83,7 +83,7 @@ export class User {
 
   @OneToMany(() => Recipe, (recipe) => recipe.author)
   recipes: Relation<Recipe[]>;
-  
+
   @OneToMany(() => Address, (address) => address.user)
   addresses: Relation<Address>[];
 }
