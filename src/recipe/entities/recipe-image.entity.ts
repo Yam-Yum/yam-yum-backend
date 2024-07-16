@@ -1,13 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  PrimaryGeneratedColumn,
-  Relation,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Recipe } from './recipe.entity';
 
 @Entity({ name: 'recipe_image' })

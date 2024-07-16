@@ -91,14 +91,14 @@ export class RecipeService {
   //  helpers
   private async _createImage(imageName: string, recipeId: string): Promise<RecipeImage> {
     return await this.recipeImageRepository.save({
-      name: imageName,
+      imageName,
       recipeId,
     });
   }
 
   private async _createVideo(videoName: string): Promise<RecipeVideo> {
     return await this.recipeVideoRepository.save({
-      name: videoName,
+      videoName,
     });
   }
 }
