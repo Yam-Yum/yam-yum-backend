@@ -1,8 +1,9 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
+import { SeederOptions } from 'typeorm-extension';
 dotenv.config();
 
-export const dataSourceOptions: DataSourceOptions = {
+export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   type: 'mysql',
   host: process.env.DATABASE_HOST,
   port: Number(process.env.DATABASE_PORT),
@@ -14,6 +15,8 @@ export const dataSourceOptions: DataSourceOptions = {
 
   synchronize: false,
   logging: false,
+
+  seeds: ['dist/database/seeds/**/*.js'],
 };
 
 const dataSource = new DataSource(dataSourceOptions);
