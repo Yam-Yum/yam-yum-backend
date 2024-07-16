@@ -26,7 +26,7 @@ export class CartItem {
 
   @ManyToOne(() => Cart, (cart) => cart.cartItems)
   @JoinColumn({ name: 'cartId' })
-  cart: Cart;
+  cart: Relation<Cart>;
 
   //   Stamps
   @Column({ default: true })

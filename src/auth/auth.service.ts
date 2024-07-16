@@ -44,11 +44,11 @@ export class AuthService {
           ? { phoneNumber: loginDto.phoneNumber }
           : null;
     const foundUser = await this._searchForUser(searchObj);
-    console.log('foundUser: ', foundUser);
+    // console.log('foundUser: ', foundUser);
 
     // 2) Validate credentials
     const validCredentials = await this._validateUserPassword(loginDto, foundUser.password);
-    console.log('validCredentials: ', validCredentials);
+    // console.log('validCredentials: ', validCredentials);
     if (!validCredentials) {
       throw new NotFoundException('invalid credentials');
     }
@@ -73,7 +73,7 @@ export class AuthService {
   }
 
   public async signup(signup: SignupDto, registrationId: string) {
-    console.log('signup: ', signup);
+    // console.log('signup: ', signup);
 
     const registration = await dataSource.getRepository(Registration).findOne({
       where: { id: registrationId },
@@ -99,7 +99,7 @@ export class AuthService {
       throw new BadRequestException('Email already used');
     }
 
-    console.log('new Date(signup.dateOfBirth): ', new Date(signup.dateOfBirth));
+    // console.log('new Date(signup.dateOfBirth): ', new Date(signup.dateOfBirth));
     //  3) create user
     const user = await dataSource.getRepository(User).save({
       firstName: signup.firstName,
@@ -138,7 +138,7 @@ export class AuthService {
     }
 
     const otp = await this._createOtp(requestOtpDto.phoneNumber);
-    console.log('otp: ', otp);
+    // console.log('otp: ', otp);
 
     return {};
   }
@@ -148,7 +148,7 @@ export class AuthService {
       where: { phoneNumber },
     });
 
-    console.log('registration: ', registration);
+    // console.log('registration: ', registration);
     if (!registration) {
       throw new NotFoundException('Phone number is not found');
     }

@@ -11,6 +11,7 @@ import { CategoryModule } from './category/category.module';
 import { JwtAuthGuard } from './auth/guards/jwt.guard';
 import { CartModule } from './cart/cart.module';
 import { RecipeModule } from './recipe/recipe.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RecipeModule } from './recipe/recipe.module';
     CategoryModule,
     CartModule,
     RecipeModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,3 +1,4 @@
+import { Order } from 'src/order/entities/order.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -5,6 +6,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
   Unique,
@@ -81,4 +83,7 @@ export class Address {
   @ManyToOne(() => User, (user) => user.addresses, { nullable: true })
   @JoinColumn({ name: 'userId' })
   user: Relation<User>;
+
+  @OneToMany(() => Order, (order) => order.address)
+  orders: Relation<Order>[];
 }

@@ -25,7 +25,7 @@ export class Cart {
   user: Relation<User>;
 
   @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
-  cartItems: Relation<CartItem>[];
+  cartItems: Relation<CartItem[]>;
 
   //   Stamps
   @Column({ default: true })

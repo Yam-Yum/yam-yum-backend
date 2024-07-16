@@ -1,11 +1,36 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCartDto } from './dto/create-cart.dto';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { AddToCartDto } from './dto/add-to-cart.dto';
+import { RecipeProviderToken } from 'src/recipe/providers/recipe.provider';
+import { Repository } from 'typeorm';
+import { Recipe } from 'src/recipe/entities/recipe.entity';
+import { cartItemProviderToken } from './providers/cart-item.provider';
+import { CartItem } from './entities/cartItem.entity';
 
 @Injectable()
 export class CartService {
-  create(createCartDto: CreateCartDto) {
-    return 'This action adds a new cart';
+  constructor(
+    @Inject(RecipeProviderToken)
+    private readonly _recipeRepository: Repository<Recipe>,
+    @Inject(cartItemProviderToken)
+    private readonly _cartItemRepository: Repository<CartItem>,
+  ) {}
+  async addToCart(addToCartDto: AddToCartDto, loggedInUserId: string) {
+    // Validate recipe id
+    const { recipeId, quantity } = addToCartDto;
+    const recipeExisted = await this._recipeRepository.findOne({
+      where: { id: recipeId },
+    });
+    if (!recipeExisted) {
+      throw new NotFoundException('Recipe not found');
+    }
+
+    // Get
+    // Create cart item
+    // const createdCartItem = await this._cartItemRepository.save({
+    //   recipe: recipeExisted,
+    //   quantity,
+    // });
   }
 
   findAll() {
