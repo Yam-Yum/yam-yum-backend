@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -19,10 +20,16 @@ import { SignupDto } from './dto/signup.dto';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { ConfirmOtpDto } from './dto/confirm-otp.dto';
 import { Registration } from 'src/users/entities/registration.entity';
+import { cartProviderToken } from 'src/cart/providers/cart.provider';
+import { Cart } from 'src/cart/entities/cart.entity';
+import { Repository } from 'typeorm';
+import { clear } from 'console';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(cartProviderToken)
+    private readonly _cartRepository: Repository<Cart>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -37,11 +44,11 @@ export class AuthService {
           ? { phoneNumber: loginDto.phoneNumber }
           : null;
     const foundUser = await this._searchForUser(searchObj);
-    console.log('foundUser: ', foundUser);
+    // console.log('foundUser: ', foundUser);
 
     // 2) Validate credentials
     const validCredentials = await this._validateUserPassword(loginDto, foundUser.password);
-    console.log('validCredentials: ', validCredentials);
+    // console.log('validCredentials: ', validCredentials);
     if (!validCredentials) {
       throw new NotFoundException('invalid credentials');
     }
@@ -66,6 +73,8 @@ export class AuthService {
   }
 
   public async signup(signup: SignupDto, registrationId: string) {
+    // console.log('signup: ', signup);
+
     const registration = await dataSource.getRepository(Registration).findOne({
       where: { id: registrationId },
     });
@@ -90,7 +99,7 @@ export class AuthService {
       throw new BadRequestException('Email already used');
     }
 
-    console.log('new Date(signup.dateOfBirth): ', new Date(signup.dateOfBirth));
+    // console.log('new Date(signup.dateOfBirth): ', new Date(signup.dateOfBirth));
     //  3) create user
     const user = await dataSource.getRepository(User).save({
       firstName: signup.firstName,
@@ -103,6 +112,11 @@ export class AuthService {
       gender: signup.gender,
       role: UserRole.ClIENT,
       registration,
+    });
+
+    // Create Cart
+    await this._cartRepository.save({
+      user,
     });
 
     //  4) send email
@@ -124,7 +138,7 @@ export class AuthService {
     }
 
     const otp = await this._createOtp(requestOtpDto.phoneNumber);
-    console.log('otp: ', otp);
+    // console.log('otp: ', otp);
 
     return {};
   }
@@ -134,7 +148,7 @@ export class AuthService {
       where: { phoneNumber },
     });
 
-    console.log('registration: ', registration);
+    // console.log('registration: ', registration);
     if (!registration) {
       throw new NotFoundException('Phone number is not found');
     }

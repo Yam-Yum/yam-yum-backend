@@ -1,12 +1,16 @@
-import { Column, Entity, ManyToOne, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Recipe } from './recipe.entity';
 
 @Entity({ name: 'recipe_image' })
 export class RecipeImage {
-  @Column({ primary: true })
-  url: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ unique: true })
+  imageName: string;
 
   // Relations
-  @ManyToOne(() => Recipe, (recipe) => recipe.images)
+  @ManyToOne(() => Recipe)
+  @JoinColumn({ name: 'recipeId' })
   recipe: Relation<Recipe>;
 }

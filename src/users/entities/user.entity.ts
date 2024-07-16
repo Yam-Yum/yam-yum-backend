@@ -12,6 +12,8 @@ import { Registration } from './registration.entity';
 import { RefreshToken } from './refresh_token.entity';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { Address } from './address.entity';
+import { Cart } from 'src/cart/entities/cart.entity';
+import { Order } from 'src/order/entities/order.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -86,4 +88,14 @@ export class User {
 
   @OneToMany(() => Address, (address) => address.user)
   addresses: Relation<Address>[];
+
+  @OneToOne(() => Cart, (cart) => cart.user, {
+    onDelete: 'CASCADE',
+  })
+  cart: Relation<Cart>;
+
+  @OneToMany(() => Order, (order) => order.user, {
+    onDelete: 'CASCADE',
+  })
+  orders: Relation<Order[]>;
 }

@@ -12,6 +12,7 @@ export class RefreshToken {
   @Column()
   expirationDate: Date;
 
+  // Relations
   @OneToOne(() => User, (user) => user.refreshToken, {
     onDelete: 'CASCADE',
   })

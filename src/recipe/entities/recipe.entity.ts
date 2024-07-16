@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -14,6 +16,8 @@ import {
 } from 'typeorm';
 import { RecipeImage } from './recipe-image.entity';
 import { RecipeVideo } from './recipe-video.entity';
+import { CartItem } from 'src/cart/entities/cartItem.entity';
+import { Order } from 'src/order/entities/order.entity';
 
 export enum RecipeStatus {
   Draft = 'Draft',
@@ -66,11 +70,9 @@ export class Recipe {
 
   // Relations
   @OneToMany(() => RecipeImage, (recipeImage) => recipeImage.recipe)
-  @JoinColumn({ name: 'recipeImageId' })
   images: Relation<RecipeImage[]>;
 
   @OneToOne(() => RecipeVideo, (recipeVideo) => recipeVideo.recipe)
-  @JoinColumn({ name: 'recipeVideoId' })
   video: Relation<RecipeVideo>;
 
   @ManyToOne(() => Category, (category) => category.recipes)
@@ -80,4 +82,11 @@ export class Recipe {
   @ManyToOne(() => User, (user) => user.recipes)
   @JoinColumn({ name: 'authorId' })
   author: Relation<User>;
+
+  @OneToMany(() => CartItem, (cartItem) => cartItem.recipe)
+  cartItems: Relation<CartItem>[];
+
+  @ManyToMany(() => Order, (order) => order.recipes)
+  @JoinTable()
+  orders: Relation<Order[]>;
 }
