@@ -21,6 +21,7 @@ export class Registration {
   @Column({ default: false })
   verified: boolean;
 
+  // Relations
   @OneToOne(() => User, (user) => user.registration, {
     onDelete: 'CASCADE',
     nullable: true,

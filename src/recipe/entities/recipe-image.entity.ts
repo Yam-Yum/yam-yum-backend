@@ -1,4 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { Recipe } from './recipe.entity';
 
 @Entity({ name: 'recipe_image' })
@@ -6,11 +15,11 @@ export class RecipeImage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ primary: true })
-  name: string;
+  @Column({ unique: true })
+  imageName: string;
 
   // Relations
-  @ManyToOne(() => Recipe, (recipe) => recipe.images)
+  @ManyToOne(() => Recipe)
   @JoinColumn({ name: 'recipeId' })
   recipe: Relation<Recipe>;
 }

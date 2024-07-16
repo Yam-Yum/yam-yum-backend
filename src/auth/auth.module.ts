@@ -4,6 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { cartProvider } from 'src/cart/providers/cart.provider';
+import dataSource from 'src/database/data-source';
 
 @Module({
   imports: [
@@ -18,7 +20,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    ...cartProvider,
+    { provide: 'DATA_SOURCE', useValue: dataSource },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

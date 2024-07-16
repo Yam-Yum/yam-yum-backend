@@ -33,7 +33,7 @@ export class AuthController {
     @Body(new AtLeastOneRequired(['email', 'phoneNumber', 'username']))
     loginDto: LoginDto,
   ) {
-    console.log('loginDto: ', loginDto);
+    // console.log('loginDto: ', loginDto);
     return this.authService.login(loginDto);
   }
 

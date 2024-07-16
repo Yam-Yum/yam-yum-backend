@@ -1,5 +1,5 @@
 // create-address.dto.ts
-import { IsString, IsNumber, IsEnum, IsOptional, IsUUID, IsBoolean } from 'class-validator';
+import { IsString, IsNumber, IsEnum, IsOptional } from 'class-validator';
 import { AddressType } from '../entities/address.entity';
 
 export class CreateAddressDto {
