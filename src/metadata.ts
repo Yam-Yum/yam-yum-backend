@@ -341,20 +341,22 @@ export default async () => {
       controllers: [
         [import('./app.controller'), { AppController: { getHello: { type: String } } }],
         [
-          import('./auth/auth.controller'),
-          { AuthController: { login: {}, signup: {}, requestOtp: {}, confirmOtp: {} } },
-        ],
-        [
-          import('./cart/cart.controller'),
+          import('./users/users.controller'),
           {
-            CartController: {
-              addToCart: {},
+            UsersController: {
+              getAddresses: {},
+              saveAddress: { type: Object },
+              create: { type: String },
               findAll: { type: String },
               findOne: { type: String },
               update: { type: String },
               remove: { type: String },
             },
           },
+        ],
+        [
+          import('./auth/auth.controller'),
+          { AuthController: { login: {}, signup: {}, requestOtp: {}, confirmOtp: {} } },
         ],
         [
           import('./category/category.controller'),
@@ -369,12 +371,10 @@ export default async () => {
           },
         ],
         [
-          import('./users/users.controller'),
+          import('./cart/cart.controller'),
           {
-            UsersController: {
-              getAddresses: {},
-              saveAddress: { type: Object },
-              create: { type: String },
+            CartController: {
+              addToCart: {},
               findAll: { type: String },
               findOne: { type: String },
               update: { type: String },
