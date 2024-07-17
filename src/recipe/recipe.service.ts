@@ -47,13 +47,12 @@ export class RecipeService {
       });
 
       // create recipe Images
-      images.forEach(async (image) => {
+      for (const image of images) {
         // Upload Recipe Image To S3
         const imageName = await this.filesService.uploadFileToS3(image);
-
         // Create Recipe Image
         await this._createImage(imageName, newRecipe.id);
-      });
+      }
 
       // create video if exists
       if (video) {
@@ -62,7 +61,32 @@ export class RecipeService {
         await this._createVideo(videoName, newRecipe.id);
       }
 
-      return newRecipe;
+      return await this.recipeRepository.find({
+        where: { id: newRecipe.id },
+        relations: {
+          category: true,
+          author: true,
+          video: true,
+          images: true,
+        },
+        select: {
+          images: {
+            id: true,
+            imageName: true,
+          },
+          video: {
+            id: true,
+            videoName: true,
+          },
+          category: {
+            id: true,
+            name: true,
+          },
+          author: {
+            id: true,
+          },
+        },
+      });
     } catch (error) {
       // Checks if Recipe title already exists ? Throw Duplicate Error: Throw Server Error
       if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
@@ -74,7 +98,14 @@ export class RecipeService {
   }
 
   findAll() {
-    return `This action returns all recipe`;
+    return this.recipeRepository.find({
+      relations: {
+        category: true,
+        author: true,
+        video: true,
+        images: true,
+      },
+    });
   }
 
   findOne(id: number) {
