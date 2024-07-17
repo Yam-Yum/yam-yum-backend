@@ -66,7 +66,7 @@ export class Order {
   address: Relation<Address>;
 
   @ManyToMany(() => Recipe, (recipe) => recipe.orders)
-  recipes: Recipe[];
+  recipes: Relation<Recipe[]>;
 
   @ManyToOne(() => User, (user) => user.orders, { nullable: true })
   @JoinColumn({ name: 'userId' })
