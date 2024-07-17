@@ -13,7 +13,9 @@ import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Recipe')
 @Controller('recipe')
 export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
@@ -30,10 +32,9 @@ export class RecipeController {
   )
   create(
     @Body() createRecipeDto: CreateRecipeDto,
-    @UploadedFiles() images: Array<Express.Multer.File>,
-    @UploadedFiles() video: Express.Multer.File,
+    @UploadedFiles() files: { images: Array<Express.Multer.File>; video: Express.Multer.File },
   ) {
-    return this.recipeService.create(createRecipeDto, images, video);
+    return this.recipeService.create(createRecipeDto, files.images, files.video);
   }
 
   @Get()

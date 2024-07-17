@@ -14,7 +14,6 @@ import { RecipeImageProviderToken } from './providers/recipe-image.provider';
 import { RecipeImage } from './entities/recipe-image.entity';
 import { RecipeVideo } from './entities/recipe-video.entity';
 import { RecipeVideoProviderToken } from './providers/recipe-video.provider';
-import dataSource from 'src/database/data-source';
 
 @Injectable()
 export class RecipeService {
@@ -34,24 +33,17 @@ export class RecipeService {
     video: Express.Multer.File,
   ) {
     try {
-      let videoId = null;
-      // create video if exists
-      if (createRecipeDto.video) {
-        const videoName = await this.filesService.uploadFileToS3(video);
-        // create Recipe video
-        const videoInDb = await this._createVideo(videoName);
-        videoId = videoInDb.id;
-      }
       // Create New Recipe
-      const newRecipe = await dataSource.getRepository(Recipe).save({
+      const newRecipe = await this.recipeRepository.save({
         title: createRecipeDto.title,
         description: createRecipeDto.description,
         preparationTimeInMinutes: createRecipeDto.preparationTimeInMinutes,
         size: createRecipeDto.size,
         price: createRecipeDto.price,
-        categoryId: createRecipeDto.categoryId,
-        authorid: createRecipeDto.authorId,
-        video: videoId,
+        category: {
+          id: createRecipeDto.categoryId,
+        },
+        author: { id: createRecipeDto.authorId },
       });
 
       // create recipe Images
@@ -62,6 +54,15 @@ export class RecipeService {
         // Create Recipe Image
         await this._createImage(imageName, newRecipe.id);
       });
+
+      // create video if exists
+      if (video) {
+        const videoName = await this.filesService.uploadFileToS3(video);
+        // create Recipe video
+        await this._createVideo(videoName, newRecipe.id);
+      }
+
+      return newRecipe;
     } catch (error) {
       // Checks if Recipe title already exists ? Throw Duplicate Error: Throw Server Error
       if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
@@ -92,13 +93,18 @@ export class RecipeService {
   private async _createImage(imageName: string, recipeId: string): Promise<RecipeImage> {
     return await this.recipeImageRepository.save({
       imageName,
-      recipeId,
+      recipe: {
+        id: recipeId,
+      },
     });
   }
 
-  private async _createVideo(videoName: string): Promise<RecipeVideo> {
+  private async _createVideo(videoName: string, recipeId: string): Promise<RecipeVideo> {
     return await this.recipeVideoRepository.save({
       videoName,
+      recipe: {
+        id: recipeId,
+      },
     });
   }
 }
