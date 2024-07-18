@@ -4,6 +4,7 @@ import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { UpdateQuantityDto } from './dto/update-quantity';
 
 @Controller('cart')
 export class CartController {
@@ -11,12 +12,20 @@ export class CartController {
 
   @Post()
   async addToCart(
-    @GetUser('id') loggedInUserId: any,
+    @GetUser('cartId') loggedInUserCartId: any,
     @Body() addToCartDto: AddToCartDto,
-    @Request() req,
+    // @Request() req,
   ) {
-    console.log('🚀 ~ CartController ~ req:', req);
-    return this.cartService.addToCart(addToCartDto, loggedInUserId);
+    // console.log('🚀 ~ CartController ~ req:', req);
+    return this.cartService.addToCart(addToCartDto, loggedInUserCartId);
+  }
+
+  @Post('/change-quantity')
+  async changeCartItemQuantity(
+    @GetUser('cartId') loggedInUserCartId: any,
+    @Body() updateQuantityDto: UpdateQuantityDto,
+  ) {
+    return this.cartService.changeCartItemQuantity(updateQuantityDto, loggedInUserCartId);
   }
 
   @Get()
