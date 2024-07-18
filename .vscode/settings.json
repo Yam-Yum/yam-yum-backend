@@ -1,4 +1,12 @@
 {
   "cSpell.words": ["nestjs", "typeorm", "uuidv"],
-  "conventionalCommits.scopes": ["swagger", "category", "Address", "recipe", "user", "Cart"]
+  "conventionalCommits.scopes": [
+    "swagger",
+    "category",
+    "Address",
+    "recipe",
+    "user",
+    "Cart",
+    "Order"
+  ]
 }
