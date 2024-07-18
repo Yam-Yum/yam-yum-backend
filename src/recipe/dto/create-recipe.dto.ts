@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsOptional, IsUUID, IsNumberString } from 'class-validator';
 import { RecipeSize } from '../entities/recipe.entity';
 
 export class CreateRecipeDto {
@@ -10,7 +10,7 @@ export class CreateRecipeDto {
   @IsNotEmpty()
   description: string;
 
-  @IsNumber()
+  @IsNumberString()
   @IsNotEmpty()
   preparationTimeInMinutes: number;
 
@@ -18,7 +18,7 @@ export class CreateRecipeDto {
   @IsOptional()
   size?: RecipeSize;
 
-  @IsNumber()
+  @IsNumberString()
   @IsNotEmpty()
   price: number;
 

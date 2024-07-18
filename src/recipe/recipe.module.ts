@@ -7,11 +7,21 @@ import { RecipeVideo } from './entities/recipe-video.entity';
 import { Recipe } from './entities/recipe.entity';
 import { RecipeProvider } from './providers/recipe.provider';
 import dataSource from 'src/database/data-source';
+import { FilesService } from 'src/files/files.service';
+import { RecipeImageProvider } from './providers/recipe-image.provider';
+import { RecipeVideoProvider } from './providers/recipe-video.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Recipe, RecipeImage, RecipeVideo])],
 
   controllers: [RecipeController],
-  providers: [RecipeService, ...RecipeProvider, { provide: 'DATA_SOURCE', useValue: dataSource }],
+  providers: [
+    RecipeService,
+    ...RecipeProvider,
+    ...RecipeImageProvider,
+    ...RecipeVideoProvider,
+    { provide: 'DATA_SOURCE', useValue: dataSource },
+    FilesService,
+  ],
 })
 export class RecipeModule {}

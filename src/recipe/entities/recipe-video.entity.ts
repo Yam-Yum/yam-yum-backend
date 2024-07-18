@@ -6,7 +6,7 @@ export class RecipeVideo {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column()
   videoName: string;
 
   // Relations
