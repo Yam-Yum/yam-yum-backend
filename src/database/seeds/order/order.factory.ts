@@ -31,7 +31,7 @@ export default setSeederFactory(Order, async (faker) => {
   // Fetch random recipes
   const recipeRepository = dataSource.getRepository(Recipe);
   const recipes = await recipeRepository.find();
-  order.recipes = faker.helpers.arrayElements(recipes, faker.datatype.number({ min: 1, max: 5 }));
+  order.recipes = faker.helpers.arrayElements(recipes);
 
   // Fetch random user
   const userRepository = dataSource.getRepository(User);

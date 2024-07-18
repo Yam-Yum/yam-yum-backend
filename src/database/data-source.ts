@@ -1,6 +1,8 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { SeederOptions } from 'typeorm-extension';
+import { runSeeder, SeederOptions } from 'typeorm-extension';
+import RecipeVideoSeeder from './seeds/recipe-video/recipe-video.seeder';
+
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions & SeederOptions = {

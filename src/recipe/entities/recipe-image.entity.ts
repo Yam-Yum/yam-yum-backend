@@ -6,7 +6,7 @@ export class RecipeImage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column()
   imageName: string;
 
   // Relations

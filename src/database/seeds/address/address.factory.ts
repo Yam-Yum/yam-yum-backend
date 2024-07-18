@@ -1,10 +1,9 @@
 import { setSeederFactory } from 'typeorm-extension';
 import { User } from 'src/users/entities/user.entity';
-import { Faker } from '@faker-js/faker';
 import { Address, AddressType } from 'src/users/entities/address.entity';
 import dataSource from 'src/database/data-source';
 
-export default setSeederFactory(Address, async (faker: Faker) => {
+export default setSeederFactory(Address, async (faker) => {
   const address = new Address();
 
   address.title = faker.string.alpha({ length: { min: 20, max: 100 } });
