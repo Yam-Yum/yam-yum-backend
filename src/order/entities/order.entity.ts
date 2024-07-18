@@ -23,7 +23,7 @@ export enum OrderStatus {
   CANCELLED = 'cancelled',
 }
 
-enum PaymentMethod {
+export enum PaymentMethod {
   CASH = 'cash',
   CREDIT = 'credit',
 }

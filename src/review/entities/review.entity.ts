@@ -1,6 +1,15 @@
 import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Entity, Column, ManyToOne, Relation, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  Relation,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum ReviewRate {
   One = 1,
@@ -10,7 +19,7 @@ export enum ReviewRate {
   Five = 5,
 }
 
-@Entity()
+@Entity('reviews')
 export class Review {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -24,6 +33,12 @@ export class Review {
 
   @Column({ type: 'text' })
   comment: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @ManyToOne(() => Recipe, (recipe) => recipe.reviews)
   @JoinColumn({ name: 'recipeId' })

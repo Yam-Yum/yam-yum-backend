@@ -16,7 +16,8 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   synchronize: false,
   logging: false,
 
-  seeds: ['dist/database/seeds/**/*.js'],
+  seeds: ['dist/database/seeds/**/*.seeder.js'],
+  factories: ['dist/database/seeds/**/*.factory.js'],
 };
 
 const dataSource = new DataSource(dataSourceOptions);

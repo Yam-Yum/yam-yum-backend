@@ -18,7 +18,7 @@ import { Review } from 'src/review/entities/review.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
-  ClIENT = 'client',
+  CLIENT = 'client',
   CHIEF = 'chief',
   GUEST = 'guest',
 }

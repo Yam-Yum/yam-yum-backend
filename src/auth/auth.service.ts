@@ -110,7 +110,7 @@ export class AuthService {
       password: await bcrypt.hash(signup.password, 10),
       dateOfBirth: new Date(signup.dateOfBirth),
       gender: signup.gender,
-      role: UserRole.ClIENT,
+      role: UserRole.CLIENT,
       registration,
     });
 
