@@ -53,10 +53,21 @@ export class AuthService {
       throw new NotFoundException('invalid credentials');
     }
 
+    // Get User's Cart id
+    const userCart = await this._cartRepository.findOne({
+      where: {
+        user: { id: foundUser.id },
+      },
+    });
+    if (!userCart) {
+      throw new NotFoundException('Cart not found');
+    }
+
     // 3) Generate tokens
     const accessToken = await this._generateAccessToken({
       id: foundUser.id,
       role: foundUser.role,
+      cartId: userCart.id,
     });
 
     const refreshToken = await this._generateRefreshToken(
@@ -190,7 +201,7 @@ export class AuthService {
     return await bcrypt.compare(loginDto.password, userPassword);
   }
 
-  private async _generateAccessToken(payload: { id: string; role: UserRole }) {
+  private async _generateAccessToken(payload: { id: string; role: UserRole; cartId: string }) {
     return this.jwtService.sign(payload);
   }
 

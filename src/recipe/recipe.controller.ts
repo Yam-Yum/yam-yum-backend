@@ -3,6 +3,7 @@ import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 
 @ApiTags('recipe')
 @Controller('recipe')
@@ -14,6 +15,7 @@ export class RecipeController {
     return this.recipeService.create(createRecipeDto);
   }
 
+  @SkipAuth()
   @Get()
   findAll() {
     return this.recipeService.findAll();
