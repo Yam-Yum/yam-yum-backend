@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { getManager, Repository } from 'typeorm';
 import { Category } from './category/entities/category.entity';
 import { Recipe } from './recipe/entities/recipe.entity';
 import dataSource from './database/data-source';
