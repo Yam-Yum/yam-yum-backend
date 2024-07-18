@@ -1,10 +1,10 @@
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { Order } from 'src/order/entities/order.entity';
 
-export default class UserSeeder implements Seeder {
+export default class OrderSeeder implements Seeder {
   public async run(dataSource: DataSource, factoryManager: SeederFactoryManager): Promise<void> {
-    const userFactory = factoryManager.get(User);
-    await userFactory.saveMany(20);
+    const OrderFactory = factoryManager.get(Order);
+    await OrderFactory.saveMany(1000);
   }
 }

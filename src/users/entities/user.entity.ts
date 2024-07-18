@@ -14,10 +14,11 @@ import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { Address } from './address.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Order } from 'src/order/entities/order.entity';
+import { Review } from 'src/review/entities/review.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
-  ClIENT = 'client',
+  CLIENT = 'client',
   CHIEF = 'chief',
   GUEST = 'guest',
 }
@@ -98,4 +99,7 @@ export class User {
     onDelete: 'CASCADE',
   })
   orders: Relation<Order[]>;
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews: Relation<Review[]>;
 }

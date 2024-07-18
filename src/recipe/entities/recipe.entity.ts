@@ -18,6 +18,7 @@ import { RecipeImage } from './recipe-image.entity';
 import { RecipeVideo } from './recipe-video.entity';
 import { CartItem } from 'src/cart/entities/cartItem.entity';
 import { Order } from 'src/order/entities/order.entity';
+import { Review } from 'src/review/entities/review.entity';
 
 export enum RecipeStatus {
   Draft = 'Draft',
@@ -62,6 +63,9 @@ export class Recipe {
   })
   status: RecipeStatus;
 
+  @Column({ type: 'float' })
+  rate: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -89,4 +93,7 @@ export class Recipe {
   @ManyToMany(() => Order, (order) => order.recipes)
   @JoinTable()
   orders: Relation<Order[]>;
+
+  @OneToMany(() => Review, (review) => review.recipe)
+  reviews: Relation<Review>[];
 }
