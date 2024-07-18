@@ -8,7 +8,7 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { FilesService } from 'src/files/files.service';
 import { QueryFailedError, Repository } from 'typeorm';
-import { Recipe } from './entities/recipe.entity';
+import { Recipe, RecipeSize, RecipeStatus } from './entities/recipe.entity';
 import { RecipeProviderToken } from './providers/recipe.provider';
 import { RecipeImageProviderToken } from './providers/recipe-image.provider';
 import { RecipeImage } from './entities/recipe-image.entity';
@@ -97,15 +97,65 @@ export class RecipeService {
     }
   }
 
-  findAll() {
-    return this.recipeRepository.find({
-      relations: {
-        category: true,
-        author: true,
-        video: true,
-        images: true,
-      },
-    });
+  async getList(
+    searchKeyword?: string,
+    status?: RecipeStatus,
+    size?: RecipeSize,
+    categoryId?: string,
+    authorId?: string,
+    rate?: number,
+    sortByRate?: 'ASC' | 'DESC',
+    sortByDate?: 'ASC' | 'DESC',
+    sortByPrice?: 'ASC' | 'DESC',
+    pageNumber: number = 1,
+    pagesize: number = 10,
+  ) {
+    const query = this.recipeRepository.createQueryBuilder('recipe');
+
+    // Filtering
+    if (status) {
+      query.andWhere('recipe.status = :status', { status });
+    }
+    if (size) {
+      query.andWhere('recipe.size = :size', { size });
+    }
+    if (categoryId) {
+      query.andWhere('recipe.categoryId = :categoryId', { categoryId });
+    }
+    if (authorId) {
+      query.andWhere('recipe.authorId = :authorId', { authorId });
+    }
+    if (rate) {
+      query.andWhere('recipe.rate = :rate', { rate });
+    }
+
+    // Searching
+    if (searchKeyword) {
+      query.andWhere('recipe.title LIKE :keyword OR recipe.description LIKE :keyword', {
+        keyword: `%${searchKeyword}%`,
+      });
+    }
+
+    // Sorting
+    if (sortByRate) {
+      query.addOrderBy('recipe.rate', sortByRate);
+    }
+    if (sortByDate) {
+      query.addOrderBy('recipe.createdAt', sortByDate);
+    }
+    if (sortByPrice) {
+      query.addOrderBy('recipe.price', sortByPrice);
+    }
+
+    // Pagination
+    query.skip((pageNumber - 1) * pagesize).take(pagesize);
+
+    const [recipes, total] = await query.getManyAndCount();
+
+    return {
+      totalCount: total,
+      data: recipes,
+    };
   }
 
   findOne(id: number) {
@@ -113,6 +163,7 @@ export class RecipeService {
   }
 
   update(id: number, updateRecipeDto: UpdateRecipeDto) {
+    console.log('updateRecipeDto: ', updateRecipeDto);
     return `This action updates a #${id} recipe`;
   }
 

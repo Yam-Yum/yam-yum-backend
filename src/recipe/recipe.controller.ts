@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFiles,
+  Query,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -15,6 +16,7 @@ import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
+import { RecipeQueryDto } from './dto/recipe-Query.dto';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -38,11 +40,36 @@ export class RecipeController {
     return this.recipeService.create(createRecipeDto, files.images, files.video);
   }
 
-  @SkipAuth()
   @Get()
   @SkipAuth()
-  findAll() {
-    return this.recipeService.findAll();
+  getList(@Query() query: RecipeQueryDto) {
+    console.log('RecipeQueryDto: ', RecipeQueryDto);
+    const {
+      searchKeyword,
+      status,
+      size,
+      categoryId,
+      authorId,
+      rate,
+      sortByRate,
+      sortByDate,
+      sortByPrice,
+      pageNumber,
+      pageSize,
+    } = query;
+    return this.recipeService.getList(
+      searchKeyword,
+      status,
+      size,
+      categoryId,
+      authorId,
+      rate,
+      sortByRate,
+      sortByDate,
+      sortByPrice,
+      pageNumber,
+      pageSize,
+    );
   }
 
   @Get(':id')
