@@ -38,6 +38,7 @@ export class RecipeController {
     return this.recipeService.create(createRecipeDto, files.images, files.video);
   }
 
+  @SkipAuth()
   @Get()
   @SkipAuth()
   findAll() {
