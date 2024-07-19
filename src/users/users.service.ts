@@ -11,12 +11,17 @@ import { AddressProvider, addressProviderToken } from './providers/address.provi
 import { Address } from './entities/address.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/create-address.dto';
+import { userProviderToken } from './providers/user.provider';
+import { User } from './entities/user.entity';
+import { Response } from 'src/utils/response';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject(addressProviderToken)
-    private readonly addressRepository: Repository<Address>,
+    private readonly _addressRepository: Repository<Address>,
+    @Inject(userProviderToken)
+    private readonly _userRepository: Repository<User>,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -44,7 +49,7 @@ export class UsersService {
   // Address Services
   async getAddresses(userId: string) {
     try {
-      return await this.addressRepository.findAndCountBy({ userId });
+      return await this._addressRepository.findAndCountBy({ userId });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -56,12 +61,36 @@ export class UsersService {
 
       // TODO: Check if userId exists
 
-      return await this.addressRepository.save({ ...createAddressDto, userId });
+      return await this._addressRepository.save({ ...createAddressDto, userId });
     } catch (error) {
       if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
         throw new ConflictException('Address already exists');
       }
       throw error;
+    }
+  }
+
+  async getMe(loggedInUserId: string) {
+    try {
+      return new Response('Logged in user info', [
+        await this._userRepository.findOne({
+          where: { id: loggedInUserId },
+          select: [
+            'id',
+            'firstName',
+            'lastName',
+            'username',
+            'email',
+            'phoneNumber',
+            'profilePicture',
+            'role',
+            'gender',
+            'dateOfBirth',
+          ],
+        }),
+      ]).success();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
   }
 }

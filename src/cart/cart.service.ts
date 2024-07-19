@@ -12,6 +12,9 @@ import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { cartItemProviderToken } from './providers/cart-item.provider';
 import { CartItem } from './entities/cartItem.entity';
 import { Response } from 'src/utils/response';
+import { addressProviderToken } from 'src/users/providers/address.provider';
+import { Address } from 'src/users/entities/address.entity';
+import OrderConstants from 'src/order/utils/order-constants';
 
 @Injectable()
 export class CartService {
@@ -20,6 +23,8 @@ export class CartService {
     private readonly _recipeRepository: Repository<Recipe>,
     @Inject(cartItemProviderToken)
     private readonly _cartItemRepository: Repository<CartItem>,
+    @Inject(addressProviderToken)
+    private readonly _addressRepository: Repository<Address>,
   ) {}
 
   async addToCart(addToCartDto: AddToCartDto, loggedInUserCartId: string) {
@@ -89,6 +94,53 @@ export class CartService {
       quantity,
     });
     return new Response('Updated cart item', [updatedCartItem]).success();
+  }
+
+  async cartCheckout(loggedInUser: any) {
+    try {
+      const { loggedInUserId, loggedInUserCartId } = loggedInUser;
+
+      const cartItems = await this._cartItemRepository.find({
+        where: { cart: { id: loggedInUserCartId } },
+        relations: { recipe: true },
+      });
+      if (!cartItems || cartItems.length == 0) {
+        throw new NotFoundException('Cart is empty');
+      }
+
+      const userAddress = await this._addressRepository.findOne({
+        where: { user: { id: loggedInUserId } },
+      });
+
+      const cartSubTotal = this.calculateCartSubTotal(cartItems);
+
+      // Shipping & Handling Fee
+      const shippingFee = OrderConstants.SHIPPING_HANDLING_FEE;
+      const systemDiscount = OrderConstants.SYSTEM_DISCOUNT;
+      const cartTotal = this.calculateCartTotal(cartSubTotal, shippingFee, systemDiscount);
+
+      return new Response('Cart checkout', [
+        { CartItems: cartItems },
+        { CartSubTotal: cartSubTotal },
+        { ShippingFee: shippingFee },
+        { discount: systemDiscount },
+        { CartTotal: cartTotal },
+        { UserAddress: userAddress },
+      ]).success();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  public calculateCartSubTotal(cartItems: CartItem[]) {
+    return cartItems.reduce(
+      (acc: number, cartItem: CartItem) => acc + cartItem.recipe.price * cartItem.quantity,
+      0,
+    );
+  }
+
+  public calculateCartTotal(cartSubTotal: number, shippingFee: number, discount: number) {
+    return cartSubTotal + shippingFee - discount;
   }
 
   findAll() {

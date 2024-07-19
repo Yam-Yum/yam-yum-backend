@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateAddressDto } from './dto/create-address.dto';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
 @ApiTags('User')
 @Controller('users')
@@ -20,6 +21,12 @@ export class UsersController {
   @Post('addresses')
   async saveAddress(@Query('userId') userId: string, @Body() createAddressDto: CreateAddressDto) {
     return await this.usersService.saveAddress(userId, createAddressDto);
+  }
+
+  // Get logged in  user info (profile endpoint)
+  @Get('me')
+  async getMe(@GetUser('id') loggedInUserId: string) {
+    return await this.usersService.getMe(loggedInUserId);
   }
 
   @Post()

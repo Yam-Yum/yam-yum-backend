@@ -5,6 +5,7 @@ import { cartProvider } from './providers/cart.provider';
 import dataSource from 'src/database/data-source';
 import { RecipeProvider } from 'src/recipe/providers/recipe.provider';
 import { cartItemProvider } from './providers/cart-item.provider';
+import { AddressProvider } from 'src/users/providers/address.provider';
 
 @Module({
   controllers: [CartController],
@@ -14,7 +15,8 @@ import { cartItemProvider } from './providers/cart-item.provider';
     { provide: 'DATA_SOURCE', useValue: dataSource },
     ...RecipeProvider,
     ...cartItemProvider,
+    ...AddressProvider,
   ],
-  exports: [...cartProvider],
+  exports: [...cartProvider, ...RecipeProvider, ...cartItemProvider, ...AddressProvider],
 })
 export class CartModule {}

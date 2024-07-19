@@ -3,7 +3,7 @@ export class Response {
   private _statusCode: number;
   private _data: object[];
 
-  constructor(message = '', statusCode?, data = []) {
+  constructor(message = '', data = [], statusCode?) {
     this._message = message;
     this._statusCode = statusCode;
     this._data = data;
