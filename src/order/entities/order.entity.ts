@@ -1,4 +1,3 @@
-import { double } from 'aws-sdk/clients/lightsail';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { Address } from 'src/users/entities/address.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -45,14 +44,14 @@ export class Order {
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.CREATED })
   status: OrderStatus;
 
-  @Column('double')
-  itemsSubtotal: double;
+  @Column('float')
+  itemsSubtotal: number;
 
-  @Column('double')
-  shippingFee: double;
+  @Column('float')
+  shippingFee: number;
 
   @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.CASH })
-  paymentMethod: PaymentMethod;
+  paymentMethod: string;
 
   @CreateDateColumn()
   createdAt: Date;

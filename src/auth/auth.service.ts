@@ -23,7 +23,6 @@ import { Registration } from 'src/users/entities/registration.entity';
 import { cartProviderToken } from 'src/cart/providers/cart.provider';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Repository } from 'typeorm';
-import { clear } from 'console';
 
 @Injectable()
 export class AuthService {
@@ -148,8 +147,7 @@ export class AuthService {
       throw new NotFoundException('Phone number already used ');
     }
 
-    const otp = await this._createOtp(requestOtpDto.phoneNumber);
-    // console.log('otp: ', otp);
+    await this._createOtp(requestOtpDto.phoneNumber);
 
     return {};
   }

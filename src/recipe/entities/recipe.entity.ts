@@ -63,8 +63,11 @@ export class Recipe {
   })
   status: RecipeStatus;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'float', nullable: true })
   rate: number;
+
+  @Column()
+  orderCount: number;
 
   @CreateDateColumn()
   createdAt: Date;

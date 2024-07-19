@@ -24,7 +24,7 @@ export class CategoryService {
       const { name } = createCategoryDto;
 
       // Upload Category Image To S3
-      const categoryImageNameOnServer = await this.filesService.uploadImageToS3(image);
+      const categoryImageNameOnServer = await this.filesService.uploadFileToS3(image);
 
       // Create New Category
       return await this.categoryRepository.save({
@@ -51,7 +51,7 @@ export class CategoryService {
           ? await Promise.all(
               allCategories.map(async (category) => {
                 if (category.image)
-                  category.image = await this.filesService.getImageFromS3(category.image);
+                  category.image = await this.filesService.getFileFromS3(category.image);
 
                 delete category.isActive;
                 return category;
@@ -71,7 +71,7 @@ export class CategoryService {
       if (!category) throw new NotFoundException('Category not found');
 
       // Get Image from S3
-      if (category.image) category.image = await this.filesService.getImageFromS3(category.image);
+      if (category.image) category.image = await this.filesService.getFileFromS3(category.image);
 
       delete category.isActive;
 
@@ -87,7 +87,7 @@ export class CategoryService {
 
       if (image) {
         // Upload Category Image To S3
-        const categoryImageNameOnServer = await this.filesService.uploadImageToS3(image);
+        const categoryImageNameOnServer = await this.filesService.uploadFileToS3(image);
 
         updateCategoryResult = await this.categoryRepository.update(id, {
           ...updateCategoryDto,

@@ -8,6 +8,7 @@ import { RecipeProvider } from 'src/recipe/providers/recipe.provider';
 import { cartItemProvider } from 'src/cart/providers/cart-item.provider';
 import { AddressProvider } from 'src/users/providers/address.provider';
 import { orderProvider } from './providers/order.provider';
+import { UserProvider } from 'src/users/providers/user.provider';
 
 @Module({
   controllers: [OrderController],
@@ -20,6 +21,7 @@ import { orderProvider } from './providers/order.provider';
     ...RecipeProvider,
     ...cartItemProvider,
     ...AddressProvider,
+    ...UserProvider,
   ],
 })
 export class OrderModule {}
