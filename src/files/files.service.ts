@@ -41,6 +41,7 @@ export class FilesService {
   }
 
   async getFileFromS3(FileName: string) {
+    if (!FileName) return null;
     const params = {
       Bucket: this.BUCKET_NAME,
       Key: FileName,
@@ -51,6 +52,13 @@ export class FilesService {
     const FileUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
 
     return FileUrl;
+  }
+
+  async getMultipleFilesFromS3(FilesNames: Array<string>) {
+    const FilesUrls = await Promise.all(
+      FilesNames.map(async (FileName) => await this.getFileFromS3(FileName)),
+    );
+    return FilesUrls;
   }
 
   private randomFileName(bytes = 32) {

@@ -183,6 +183,7 @@ export class RecipeService {
   }
 
   async getDetails(id: string) {
+    console.log('id: ', id);
     const recipe = await this.recipeRepository.findOne({
       where: { id },
       relations: {
@@ -190,6 +191,9 @@ export class RecipeService {
         author: true,
         video: true,
         images: true,
+        reviews: {
+          user: true,
+        },
       },
       select: {
         images: {
@@ -210,6 +214,16 @@ export class RecipeService {
           lastName: true,
           profilePicture: true,
         },
+        reviews: {
+          id: true,
+          comment: true,
+          rating: true,
+          user: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
       },
     });
 
@@ -229,7 +243,7 @@ export class RecipeService {
     );
 
     //  get signed url for video
-    const videoUrl = await this.filesService.getFileFromS3(recipe.video.videoName);
+    const videoUrl = await this.filesService.getFileFromS3(recipe.video?.videoName);
 
     return { ...recipe, images: [...imageUrls.map((image) => image.imageUrl)], video: videoUrl };
   }
