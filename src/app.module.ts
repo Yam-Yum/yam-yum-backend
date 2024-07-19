@@ -13,6 +13,7 @@ import { CartModule } from './cart/cart.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { OrderModule } from './order/order.module';
 import { ReviewModule } from './review/review.module';
+import { FilesService } from './files/files.service';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ReviewModule } from './review/review.module';
       provide: 'APP_GUARD',
       useClass: JwtAuthGuard,
     },
+    FilesService,
   ],
 })
 export class AppModule {}
