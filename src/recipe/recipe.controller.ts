@@ -73,8 +73,9 @@ export class RecipeController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.recipeService.findOne(+id);
+  @SkipAuth()
+  getDetails(@Param('id') id: string) {
+    return this.recipeService.getDetails(id);
   }
 
   @Patch(':id')

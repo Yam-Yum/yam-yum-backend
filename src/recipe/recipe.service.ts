@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
@@ -110,7 +111,10 @@ export class RecipeService {
     pageNumber: number = 1,
     pagesize: number = 10,
   ) {
-    const query = this.recipeRepository.createQueryBuilder('recipe');
+    const query = this.recipeRepository
+      .createQueryBuilder('recipe')
+      .leftJoinAndSelect('recipe.images', 'images')
+      .leftJoinAndSelect('recipe.video', 'video');
 
     // Filtering
     if (status) {
@@ -152,14 +156,82 @@ export class RecipeService {
 
     const [recipes, total] = await query.getManyAndCount();
 
+    // Transform recipes to include videoUrl and imageUrls
+    const transformedRecipes = await Promise.all(
+      recipes.map(async (recipe) => {
+        let videoUrl;
+        if (recipe.video) {
+          videoUrl = await this.filesService.getFileFromS3(recipe.video.videoName);
+        }
+
+        return {
+          ...recipe,
+          video: videoUrl || null,
+          images: await Promise.all(
+            recipe.images.map(
+              async (image) => await this.filesService.getFileFromS3(image.imageName),
+            ),
+          ),
+        };
+      }),
+    );
+
     return {
       totalCount: total,
-      data: recipes,
+      data: transformedRecipes,
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} recipe`;
+  async getDetails(id: string) {
+    const recipe = await this.recipeRepository.findOne({
+      where: { id },
+      relations: {
+        category: true,
+        author: true,
+        video: true,
+        images: true,
+      },
+      select: {
+        images: {
+          id: true,
+          imageName: true,
+        },
+        video: {
+          id: true,
+          videoName: true,
+        },
+        category: {
+          id: true,
+          name: true,
+        },
+        author: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+      },
+    });
+
+    if (!recipe) {
+      throw new NotFoundException('Recipe not found');
+    }
+
+    //  get signed url for each image
+
+    const imageUrls = await Promise.all(
+      recipe.images.map(async (image) => {
+        const imageUrl = await this.filesService.getFileFromS3(image.imageName);
+        return {
+          imageUrl,
+        };
+      }),
+    );
+
+    //  get signed url for video
+    const videoUrl = await this.filesService.getFileFromS3(recipe.video.videoName);
+
+    return { ...recipe, images: [...imageUrls.map((image) => image.imageUrl)], video: videoUrl };
   }
 
   update(id: number, updateRecipeDto: UpdateRecipeDto) {
