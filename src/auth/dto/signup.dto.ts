@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsDate, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsEnum, IsString } from 'class-validator';
 import { UserGender } from 'src/users/entities/user.entity';
 
 export class SignupDto {
@@ -19,11 +19,6 @@ export class SignupDto {
   @ApiProperty({ example: 'hassan.kamel@gmail.com', required: true })
   @IsString()
   email: string;
-
-  @ApiProperty({ example: 'hassan-kamel', required: true })
-  @IsString()
-  @IsOptional()
-  username: string;
 
   @ApiProperty({ example: 'HASSAN#TY87', required: true })
   @IsString()

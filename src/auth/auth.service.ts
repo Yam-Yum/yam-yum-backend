@@ -83,8 +83,6 @@ export class AuthService {
   }
 
   public async signup(signup: SignupDto, registrationId: string) {
-    // console.log('signup: ', signup);
-
     const registration = await dataSource.getRepository(Registration).findOne({
       where: { id: registrationId },
     });
@@ -114,7 +112,6 @@ export class AuthService {
     const user = await dataSource.getRepository(User).save({
       firstName: signup.firstName,
       lastName: signup.lastName,
-      username: signup.username,
       email: signup.email,
       phoneNumber: signup.phoneNumber,
       password: await bcrypt.hash(signup.password, 10),

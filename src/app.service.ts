@@ -16,7 +16,7 @@ export class AppService {
       select: ['imageName'],
     });
 
-    const bannerImages = this.filesService.getMultipleFilesFromS3(
+    const bannerImages = await this.filesService.getMultipleFilesFromS3(
       banners.map((banner) => banner.imageName),
     );
 
