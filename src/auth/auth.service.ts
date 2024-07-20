@@ -86,6 +86,7 @@ export class AuthService {
     const registration = await dataSource.getRepository(Registration).findOne({
       where: { id: registrationId },
     });
+    console.log('registration: ', registration);
     if (!registration) {
       throw new BadRequestException('Wrong registration Id');
     }
@@ -106,6 +107,9 @@ export class AuthService {
     if (userByEmail) {
       throw new BadRequestException('Email already used');
     }
+
+    registration.verified = true;
+    await dataSource.getRepository(Registration).save(registration);
 
     // console.log('new Date(signup.dateOfBirth): ', new Date(signup.dateOfBirth));
     //  3) create user
