@@ -13,8 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create .env file
-        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+      - name: Clean up Docker resources
+        run: |
+          sudo docker container prune -f
+          sudo docker image prune -a -f
+          sudo docker volume prune -f
+          sudo docker network prune -f
 
       - name: Log in to Docker Hub
         env:
