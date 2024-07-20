@@ -104,7 +104,8 @@ export class RecipeService {
     size?: RecipeSize,
     categoryId?: string,
     authorId?: string,
-    rate?: number,
+    rateGreaterThan?: number,
+    rateLessThan?: number,
     sortByRate?: 'ASC' | 'DESC',
     sortByDate?: 'ASC' | 'DESC',
     sortByPrice?: 'ASC' | 'DESC',
@@ -129,8 +130,11 @@ export class RecipeService {
     if (authorId) {
       query.andWhere('recipe.authorId = :authorId', { authorId });
     }
-    if (rate) {
-      query.andWhere('recipe.rate = :rate', { rate });
+    if (rateGreaterThan) {
+      query.andWhere('recipe.rate >= :rateGreaterThan', { rateGreaterThan });
+    }
+    if (rateLessThan) {
+      query.andWhere('recipe.rate <= :rateLessThan', { rateLessThan });
     }
 
     // Searching

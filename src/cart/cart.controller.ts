@@ -5,7 +5,9 @@ import { UpdateCartDto } from './dto/update-cart.dto';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { UpdateQuantityDto } from './dto/update-quantity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Cart')
 @Controller('cart')
 export class CartController {
   constructor(private readonly _cartService: CartService) {}

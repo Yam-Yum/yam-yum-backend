@@ -58,7 +58,8 @@ export class AuthService {
         user: { id: foundUser.id },
       },
     });
-    if (!userCart) {
+
+    if (!userCart && foundUser.role === UserRole.CLIENT) {
       throw new NotFoundException('Cart not found');
     }
 
@@ -66,7 +67,7 @@ export class AuthService {
     const accessToken = await this._generateAccessToken({
       id: foundUser.id,
       role: foundUser.role,
-      cartId: userCart.id,
+      cartId: userCart?.id || null,
     });
 
     const refreshToken = await this._generateRefreshToken(

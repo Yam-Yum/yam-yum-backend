@@ -24,7 +24,11 @@ export class RecipeQueryDto {
 
   @IsOptional()
   @IsNumberString()
-  rate?: number;
+  rateGreaterThan?: number;
+
+  @IsOptional()
+  @IsNumberString()
+  rateLessThan?: number;
 
   @IsOptional()
   @IsIn(['ASC', 'DESC'])

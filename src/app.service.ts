@@ -3,7 +3,6 @@ import { Category } from './category/entities/category.entity';
 import { Recipe } from './recipe/entities/recipe.entity';
 import dataSource from './database/data-source';
 import { FilesService } from './files/files.service';
-import { RecipeImage } from './recipe/entities/recipe-image.entity';
 
 @Injectable()
 export class AppService {
@@ -11,13 +10,8 @@ export class AppService {
 
   async getHomePage() {
     // custom banners from images randomly
-    const banners = await dataSource.getRepository(RecipeImage).find({
-      take: 10,
-      select: ['imageName'],
-    });
-
     const bannerImages = await this.filesService.getMultipleFilesFromS3(
-      banners.map((banner) => banner.imageName),
+      new Array(5).fill('23ee015e69a5e8017a7acc5bde00681052e3db02032b74506faa59307d1110bd'),
     );
 
     // Fetch all recipes with images
