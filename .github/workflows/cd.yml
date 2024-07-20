@@ -29,5 +29,5 @@ jobs:
       - name: Pull the latest Docker image
         run: sudo docker pull hassankamel755/yam-yum-backend:latest
 
-      - name: Build and run Docker containers
-        run: sudo docker compose up --build -d
+      - name: Run Docker Container
+        run: sudo docker run -d -p 3000:3000 --name yam-yum-backend-container hassankamel755/yam-yum-backend
