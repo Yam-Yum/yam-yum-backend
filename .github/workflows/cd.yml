@@ -17,7 +17,7 @@ jobs:
         run: |
           sudo docker container prune -f
           sudo docker image prune -a -f
-          sudo docker volume prune -f
+          sudo docker system prune -a -f --volumes
           sudo docker network prune -f
 
       - name: Log in to Docker Hub
