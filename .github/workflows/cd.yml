@@ -29,8 +29,5 @@ jobs:
       - name: Pull the latest Docker image
         run: sudo docker pull hassankamel755/yam-yum-backend:latest
 
-      - name: Stop and remove old containers
-        run: sudo docker compose down || true
-
       - name: Build and run Docker containers
         run: sudo docker compose up --build -d
