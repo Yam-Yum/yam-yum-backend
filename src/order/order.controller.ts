@@ -4,6 +4,8 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
+import { PlaceOrderDto } from './dto/place-order.dto';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
 @ApiTags('order')
 @Controller('order')
@@ -11,8 +13,13 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @SkipAuth()
+  @Post('place')
+  async placeOrder(@Body() placeOrderDto: PlaceOrderDto) {
+    return await this.orderService.placeOrder(placeOrderDto);
+  }
+
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
+  async create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
   }
 

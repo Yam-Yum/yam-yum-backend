@@ -50,6 +50,12 @@ export class Order {
   @Column('float')
   shippingFee: number;
 
+  @Column('int')
+  discount: number;
+
+  @Column('float')
+  orderTotal: number;
+
   @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.CASH })
   paymentMethod: string;
 
