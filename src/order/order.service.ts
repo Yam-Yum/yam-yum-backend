@@ -20,6 +20,7 @@ import { generateRandomOrderNumber } from './utils/generate-order-number';
 import { Response } from 'src/utils/response';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import OrderConstants from './utils/order-constants';
+import { CheckoutDto } from './dto/checkout.dto';
 
 type RecipeType = { recipe: Recipe; quantity: number };
 @Injectable()
@@ -84,6 +85,42 @@ export class OrderService {
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
+  }
+
+  async checkout(checkoutDto: CheckoutDto) {
+    // check if recipeIds exists
+    const { recipes, userId } = checkoutDto;
+    const recipeIds = recipes.map((recipe) => recipe.recipeId);
+    // if one recipe isn't found, throw error
+    const recipeExists = await this._recipeRepository.find({
+      where: {
+        id: In(recipeIds),
+      },
+    });
+
+    if (recipeExists.length !== recipeIds.length) {
+      throw new NotFoundException('Some RecipeIds does not exist');
+    }
+
+    const shippingFee = OrderConstants.SHIPPING_HANDLING_FEE;
+    const systemDiscount = OrderConstants.SYSTEM_DISCOUNT;
+
+    // calculate total price
+    let totalPrice = 0;
+    for (const recipe of recipeExists) {
+      totalPrice += recipe.price;
+    }
+
+    // calculate total net price
+    const totalNetPrice = totalPrice - systemDiscount + shippingFee;
+
+    return {
+      totalPrice,
+      shippingFee: shippingFee,
+      systemDiscount: systemDiscount,
+      totalNetPrice,
+      recipes: recipeExists,
+    };
   }
 
   async placeOrder(placeOrderDto: PlaceOrderDto) {

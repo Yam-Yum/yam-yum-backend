@@ -13,6 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Stop and remove existing container
+        run: |
+          if [ "$(sudo docker ps -aq -f name=yam-yum-backend-container)" ]; then
+            sudo docker stop yam-yum-backend-container
+            sudo docker rm yam-yum-backend-container
+          fi
+
       - name: Clean up Docker resources
         run: |
           sudo docker container prune -f
