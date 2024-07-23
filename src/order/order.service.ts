@@ -18,7 +18,10 @@ import { RecipeProviderToken } from 'src/recipe/providers/recipe.provider';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { generateRandomOrderNumber } from './utils/generate-order-number';
 import { Response } from 'src/utils/response';
+import { PlaceOrderDto } from './dto/place-order.dto';
+import OrderConstants from './utils/order-constants';
 
+type RecipeType = { recipe: Recipe; quantity: number };
 @Injectable()
 export class OrderService {
   constructor(
@@ -82,6 +85,72 @@ export class OrderService {
       throw new InternalServerErrorException(error);
     }
   }
+
+  async placeOrder(placeOrderDto: PlaceOrderDto) {
+    try {
+      const { fullName, phoneNumber, addressId, recipes, userId, paymentMethod } = placeOrderDto;
+      console.log(placeOrderDto);
+
+      const addressExists = await this._addressRepository.findOneBy({ id: addressId });
+
+      let userExists = null;
+      if (userId) {
+        userExists = await this._userRepository.findOne({ where: { id: userId } });
+        if (!userExists) {
+          throw new NotFoundException('User does not exist');
+        }
+      }
+      const recipeIds = recipes.map((recipe) => recipe.recipeId);
+      const recipeExists = await this._recipeRepository.find({
+        where: {
+          id: In(recipeIds),
+        },
+      });
+
+      const orderRecipesInfo = recipeExists.map((recipe) => {
+        return {
+          recipe: recipe,
+          quantity: recipes.find((r) => r.recipeId === recipe.id).quantity,
+        };
+      });
+
+      const orderSubTotal = this._calculateOrderSubTotal(orderRecipesInfo);
+      const shippingFee = OrderConstants.SHIPPING_HANDLING_FEE;
+      const systemDiscount = OrderConstants.SYSTEM_DISCOUNT;
+      const orderTotal = this._calculateOrderTotal(orderSubTotal, shippingFee, systemDiscount);
+
+      const uniqueOrderNumber = generateRandomOrderNumber();
+      await this._orderRepository.save({
+        orderNumber: uniqueOrderNumber,
+        fullName: fullName,
+        phoneNumber: phoneNumber,
+        paymentMethod: paymentMethod,
+        status: OrderStatus.CREATED,
+        user: userExists,
+        address: addressExists,
+        recipes: recipeExists,
+        itemsSubtotal: orderSubTotal,
+        shippingFee: shippingFee,
+        discount: systemDiscount,
+        orderTotal: orderTotal,
+      });
+
+      for (const recipeId of recipeIds) {
+        const recipe = await this._recipeRepository.findOne({
+          where: { id: recipeId },
+        });
+        if (recipe) {
+          recipe.orderCount++;
+          await this._recipeRepository.save(recipe);
+        }
+      }
+
+      return new Response('Order Placed', [{ orderNumber: 'uniqueOrderNumber' }]).created();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
   findAll() {
     return `This action returns all order`;
   }
@@ -93,5 +162,16 @@ export class OrderService {
   }
   remove(id: number) {
     return `This action removes a #${id} order`;
+  }
+
+  private _calculateOrderSubTotal(recipes: RecipeType[]) {
+    return recipes.reduce(
+      (acc: number, recipeInfo: RecipeType) => acc + recipeInfo.recipe.price * recipeInfo.quantity,
+      0,
+    );
+  }
+
+  private _calculateOrderTotal(orderSubTotal: number, shippingFee: number, discount: number) {
+    return orderSubTotal + shippingFee - discount;
   }
 }
