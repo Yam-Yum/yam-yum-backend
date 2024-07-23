@@ -55,13 +55,9 @@ export class UsersService {
     }
   }
 
-  async saveAddress(userId: string, createAddressDto: CreateAddressDto) {
+  async saveAddress(createAddressDto: CreateAddressDto) {
     try {
-      if (!userId) throw new BadRequestException('userId is required');
-
-      // TODO: Check if userId exists
-
-      return await this._addressRepository.save({ ...createAddressDto, userId });
+      return await this._addressRepository.save({ ...createAddressDto });
     } catch (error) {
       if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
         throw new ConflictException('Address already exists');

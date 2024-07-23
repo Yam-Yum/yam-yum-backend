@@ -144,6 +144,10 @@ export class OrderService {
         },
       });
 
+      if (recipeExists.length !== recipeIds.length) {
+        throw new NotFoundException('Some RecipeIds does not exist');
+      }
+
       const orderRecipesInfo = recipeExists.map((recipe) => {
         return {
           recipe: recipe,
@@ -182,7 +186,7 @@ export class OrderService {
         }
       }
 
-      return new Response('Order Placed', [{ orderNumber: 'uniqueOrderNumber' }]).created();
+      return new Response('Order Placed', [{ orderNumber: uniqueOrderNumber }]).created();
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

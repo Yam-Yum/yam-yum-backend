@@ -18,9 +18,10 @@ export class UsersController {
     return await this.usersService.getAddresses(userId);
   }
 
+  @SkipAuth()
   @Post('addresses')
-  async saveAddress(@Query('userId') userId: string, @Body() createAddressDto: CreateAddressDto) {
-    return await this.usersService.saveAddress(userId, createAddressDto);
+  async saveAddress(@Body() createAddressDto: CreateAddressDto) {
+    return await this.usersService.saveAddress(createAddressDto);
   }
 
   // Get logged in  user info (profile endpoint)
