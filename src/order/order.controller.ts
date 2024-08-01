@@ -6,6 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { CheckoutDto } from './dto/checkout.dto';
 
 @ApiTags('order')
 @Controller('order')
@@ -16,6 +17,12 @@ export class OrderController {
   @Post('place')
   async placeOrder(@Body() placeOrderDto: PlaceOrderDto) {
     return await this.orderService.placeOrder(placeOrderDto);
+  }
+
+  @SkipAuth()
+  @Post('checkout')
+  async checkout(@Body() checkoutDto: CheckoutDto) {
+    return await this.orderService.checkout(checkoutDto);
   }
 
   @Post()
