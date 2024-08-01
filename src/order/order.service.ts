@@ -21,6 +21,7 @@ import { Response } from 'src/utils/response';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import OrderConstants from './utils/order-constants';
 import { CheckoutDto } from './dto/checkout.dto';
+import { orderGuestDto } from './dto/order-guest.dto';
 
 type RecipeType = { recipe: Recipe; quantity: number };
 @Injectable()
@@ -190,6 +191,25 @@ export class OrderService {
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
+  }
+
+  async getGuestOrders(orderGuestDto: orderGuestDto) {
+    const { orderIds } = orderGuestDto;
+    const query = this._orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.recipes', 'recipe')
+      .where('order.userId IS NULL');
+
+    if (orderIds) {
+      query.andWhere('order.id IN (:...orderIds)', { orderIds });
+    }
+
+    const [orders, total] = await query.getManyAndCount();
+
+    return {
+      totalCount: total,
+      orders: orders,
+    };
   }
 
   findAll() {
