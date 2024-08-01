@@ -43,7 +43,7 @@ export class AuthService {
           ? { phoneNumber: loginDto.phoneNumber }
           : null;
     const foundUser = await this._searchForUser(searchObj);
-    // console.log('foundUser: ', foundUser);
+    console.log('foundUser: ', foundUser);
 
     // 2) Validate credentials
     const validCredentials = await this._validateUserPassword(loginDto, foundUser.password);
@@ -186,11 +186,14 @@ export class AuthService {
 
   // Helper functions
   private async _searchForUser(searchObj: { [key: string]: string }) {
+    console.log(searchObj);
     const user = await dataSource.getRepository(User).findOne({
       where: {
         ...searchObj,
       },
     });
+    // console.log('149 - foundUser: ', user);
+
     if (!user) {
       throw new NotFoundException('invalid credentials');
     }

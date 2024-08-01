@@ -1,7 +1,9 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ReelService } from './reel.service';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { ReelsQueryDto } from './dto/reels-query.dto';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { AddToFavoriteDto } from './dto/add-to-fav.dto';
 
 @Controller('reels')
 export class ReelController {
@@ -12,5 +14,13 @@ export class ReelController {
   async getReels(@Query() query: ReelsQueryDto) {
     const { pageNumber, pageSize } = query;
     return await this.reelService.getReels(pageNumber, pageSize);
+  }
+
+  @Post('add-to-favorite')
+  async toggleFavoriteRecipe(
+    @GetUser('id') userId: string,
+    @Body() addToFavoriteDto: AddToFavoriteDto,
+  ) {
+    return await this.reelService.toggleFavoriteRecipe(userId, addToFavoriteDto);
   }
 }

@@ -99,4 +99,8 @@ export class Recipe {
 
   @OneToMany(() => Review, (review) => review.recipe)
   reviews: Relation<Review>[];
+
+  @ManyToMany(() => User, (user) => user.favoriteRecipes)
+  @JoinTable({ name: 'user_favorite_recipes' })
+  users: Relation<User[]>;
 }

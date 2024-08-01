@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -102,4 +103,7 @@ export class User {
 
   @OneToMany(() => Review, (review) => review.user)
   reviews: Relation<Review[]>;
+
+  @ManyToMany(() => Recipe, (recipe) => recipe.users)
+  favoriteRecipes: Relation<Recipe[]>;
 }
