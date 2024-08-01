@@ -8,7 +8,6 @@ import {
   Delete,
   UseInterceptors,
   UploadedFiles,
-  Query,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -40,13 +39,14 @@ export class RecipeController {
     return this.recipeService.create(createRecipeDto, files.images, files.video);
   }
 
-  @Get()
+  @Post('list')
   @SkipAuth()
-  getList(@Query() query: RecipeQueryDto) {
-    console.log('RecipeQueryDto: ', RecipeQueryDto);
+  getList(@Body() body: RecipeQueryDto) {
+    console.log('RecipeQueryDto: ', body);
     const {
       searchKeyword,
       status,
+      recipeIds,
       size,
       categoryId,
       authorId,
@@ -57,10 +57,11 @@ export class RecipeController {
       sortByPrice,
       pageNumber,
       pageSize,
-    } = query;
+    } = body;
     return this.recipeService.getList(
       searchKeyword,
       status,
+      recipeIds,
       size,
       categoryId,
       authorId,
