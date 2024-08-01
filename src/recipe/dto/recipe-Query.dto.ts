@@ -11,6 +11,9 @@ export class RecipeQueryDto {
   status?: RecipeStatus;
 
   @IsOptional()
+  recipeIds: string[];
+
+  @IsOptional()
   @IsEnum(RecipeSize)
   size?: RecipeSize;
 

@@ -101,6 +101,7 @@ export class RecipeService {
   async getList(
     searchKeyword?: string,
     status?: RecipeStatus,
+    recipeIds?: string[],
     size?: RecipeSize,
     categoryId?: string,
     authorId?: string,
@@ -112,6 +113,7 @@ export class RecipeService {
     pageNumber: number = 1,
     pagesize: number = 10,
   ) {
+    console.log('recipeIds: ', recipeIds);
     const query = this.recipeRepository
       .createQueryBuilder('recipe')
       .leftJoinAndSelect('recipe.images', 'images')
@@ -135,6 +137,9 @@ export class RecipeService {
     }
     if (rateLessThan) {
       query.andWhere('recipe.rate <= :rateLessThan', { rateLessThan });
+    }
+    if (recipeIds) {
+      query.andWhere('recipe.id IN (:...recipeIds)', { recipeIds });
     }
 
     // Searching

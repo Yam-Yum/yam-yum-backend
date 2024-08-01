@@ -14,7 +14,7 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   migrations: ['dist/database/migrations/*.js'],
 
   synchronize: false,
-  logging: false,
+  logging: true, // PLZ LEAVE IT TRUE
 
   seeds: ['dist/database/seeds/**/*.seeder.js'],
   factories: ['dist/database/seeds/**/*.factory.js'],
