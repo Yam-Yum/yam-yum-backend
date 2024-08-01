@@ -7,6 +7,7 @@ import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { CheckoutDto } from './dto/checkout.dto';
+import { orderGuestDto } from './dto/order-guest.dto';
 
 @ApiTags('order')
 @Controller('order')
@@ -23,6 +24,12 @@ export class OrderController {
   @Post('checkout')
   async checkout(@Body() checkoutDto: CheckoutDto) {
     return await this.orderService.checkout(checkoutDto);
+  }
+
+  @SkipAuth()
+  @Post('guest')
+  async getGuestOrders(@Body() orderGuestDto: orderGuestDto) {
+    return this.orderService.getGuestOrders(orderGuestDto);
   }
 
   @Post()
