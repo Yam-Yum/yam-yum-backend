@@ -83,6 +83,8 @@ export class UsersService {
             'gender',
             'dateOfBirth',
           ],
+
+          relations: ['addresses'],
         }),
       ]).success();
     } catch (error) {
