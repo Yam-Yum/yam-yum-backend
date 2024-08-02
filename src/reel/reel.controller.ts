@@ -4,6 +4,7 @@ import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { ReelsQueryDto } from './dto/reels-query.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { AddToFavoriteDto } from './dto/add-to-fav.dto';
+import { LikeReelDto } from './dto/like-reel.dto';
 
 @Controller('reels')
 export class ReelController {
@@ -16,11 +17,8 @@ export class ReelController {
     return await this.reelService.getReels(pageNumber, pageSize);
   }
 
-  @Post('add-to-favorite')
-  async toggleFavoriteRecipe(
-    @GetUser('id') userId: string,
-    @Body() addToFavoriteDto: AddToFavoriteDto,
-  ) {
-    return await this.reelService.toggleFavoriteRecipe(userId, addToFavoriteDto);
+  @Post('like')
+  async toggleFavoriteRecipe(@GetUser('id') userId: string, @Body() likeReelDto: LikeReelDto) {
+    return await this.reelService.toggleLikeReel(userId, likeReelDto);
   }
 }

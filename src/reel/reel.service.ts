@@ -1,3 +1,4 @@
+import { LikeReelDto } from './dto/like-reel.dto';
 import {
   BadRequestException,
   Inject,
@@ -49,11 +50,11 @@ export class ReelService {
     }
   }
 
-  async toggleFavoriteRecipe(loggedInUserId: string, addToFavoriteDto: AddToFavoriteDto) {
+  async toggleLikeReel(loggedInUserId: string, likeReelDto: LikeReelDto) {
     try {
       console.log(loggedInUserId);
 
-      const { recipeId } = addToFavoriteDto;
+      const { recipeId } = likeReelDto;
       const userExists = await this._userRepository.findOne({
         where: { id: loggedInUserId },
         relations: ['favoriteRecipes'],
