@@ -35,7 +35,6 @@ import { ReelModule } from './reel/reel.module';
   controllers: [AppController],
   providers: [
     AppService,
-    // Provide JwtAuthGuard Global
     {
       provide: 'APP_GUARD',
       useClass: JwtAuthGuard,

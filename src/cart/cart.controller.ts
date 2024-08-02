@@ -35,6 +35,11 @@ export class CartController {
     return this._cartService.cartCheckout(loggedInUser);
   }
 
+  @Get('mine')
+  async getMyCart(@GetUser('cartId') loggedInUserCartId: string) {
+    return this._cartService.getMyCart(loggedInUserCartId);
+  }
+
   @Get()
   findAll() {
     return this._cartService.findAll();

@@ -83,6 +83,7 @@ export class UsersService {
           'gender',
           'dateOfBirth',
         ],
+        relations: ['addresses'],
       });
 
       const userFavList = await this._dataSource
