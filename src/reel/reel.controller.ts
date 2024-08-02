@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ReelService } from './reel.service';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { ReelsQueryDto } from './dto/reels-query.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { AddToFavoriteDto } from './dto/add-to-fav.dto';
 import { LikeReelDto } from './dto/like-reel.dto';
+import { AddCommentDto } from './dto/add-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('reels')
 export class ReelController {
@@ -17,8 +19,18 @@ export class ReelController {
     return await this.reelService.getReels(pageNumber, pageSize);
   }
 
-  @Post('like')
-  async toggleFavoriteRecipe(@GetUser('id') userId: string, @Body() likeReelDto: LikeReelDto) {
-    return await this.reelService.toggleLikeReel(userId, likeReelDto);
+  @Get(':videoId/like')
+  async toggleLikeReel(@GetUser('id') userId: string, @Param('videoId') videoId: string) {
+    return await this.reelService.toggleLikeReel(userId, videoId);
+  }
+
+  @Post('comment')
+  async addComment(@GetUser('id') userId: string, @Body() addCommentDto: AddCommentDto) {
+    return await this.reelService.addComment(userId, addCommentDto);
+  }
+
+  @Patch('comment')
+  async updateComment(@GetUser('id') userId: string, @Body() updateCommentDto: UpdateCommentDto) {
+    return await this.reelService.updateComment(userId, updateCommentDto);
   }
 }
