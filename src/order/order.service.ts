@@ -1,4 +1,3 @@
-import { CartService } from './../cart/cart.service';
 import {
   Inject,
   Injectable,
