@@ -15,16 +15,22 @@ import { Response } from 'src/utils/response';
 import { addressProviderToken } from 'src/users/providers/address.provider';
 import { Address } from 'src/users/entities/address.entity';
 import OrderConstants from 'src/order/utils/order-constants';
+import { cartProviderToken } from './providers/cart.provider';
+import { Cart } from './entities/cart.entity';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class CartService {
   constructor(
     @Inject(RecipeProviderToken)
     private readonly _recipeRepository: Repository<Recipe>,
+    @Inject(cartProviderToken)
+    private readonly _cartRepository: Repository<Cart>,
     @Inject(cartItemProviderToken)
     private readonly _cartItemRepository: Repository<CartItem>,
     @Inject(addressProviderToken)
     private readonly _addressRepository: Repository<Address>,
+    // private readonly _filesService: FilesService,
   ) {}
 
   async addToCart(addToCartDto: AddToCartDto, loggedInUserCartId: string) {
@@ -132,6 +138,48 @@ export class CartService {
     }
   }
 
+  async getMyCart(loggedInUserId: string) {
+    const cart = await this._cartRepository.findOne({
+      where: { id: loggedInUserId },
+      relations: { cartItems: { recipe: { images: true } } },
+      select: {
+        id: true,
+        cartItems: {
+          id: true,
+          quantity: true,
+          recipe: {
+            id: true,
+            title: true,
+            description: true,
+            price: true,
+            images: true,
+          },
+        },
+      },
+    });
+
+    if (!cart) {
+      throw new NotFoundException('Cart not found');
+    }
+
+    // get signed url
+    const imageNames = cart.cartItems.map((item) =>
+      item.recipe.images.map((image) => image.imageName),
+    );
+    // const images = await this._filesService.getMultipleFilesFromS3(imageNames.flat());
+
+    return {
+      ...cart,
+      cartItems: cart.cartItems.map((item) => ({
+        ...item,
+        recipe: {
+          ...item.recipe,
+          // images,
+        },
+      })),
+    };
+  }
+
   public calculateCartSubTotal(cartItems: CartItem[]) {
     return cartItems.reduce(
       (acc: number, cartItem: CartItem) => acc + cartItem.recipe.price * cartItem.quantity,
@@ -152,6 +200,7 @@ export class CartService {
   }
 
   update(id: number, updateCartDto: UpdateCartDto) {
+    console.log('updateCartDto: ', updateCartDto);
     return `This action updates a #${id} cart`;
   }
 
