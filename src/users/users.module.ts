@@ -8,6 +8,10 @@ import { Registration } from './entities/registration.entity';
 import dataSource from 'src/database/data-source';
 import { AddressProvider } from './providers/address.provider';
 import { UserProvider } from './providers/user.provider';
+import { RecipeProvider } from 'src/recipe/providers/recipe.provider';
+import { orderProvider } from 'src/order/providers/order.provider';
+import { cartProvider } from 'src/cart/providers/cart.provider';
+import { cartItemProvider } from 'src/cart/providers/cart-item.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, RefreshToken, Registration])],
@@ -17,6 +21,10 @@ import { UserProvider } from './providers/user.provider';
     ...AddressProvider,
     ...UserProvider,
     { provide: 'DATA_SOURCE', useValue: dataSource },
+    ...RecipeProvider,
+    ...orderProvider,
+    ...cartProvider,
+    ...cartItemProvider,
   ],
   exports: [...AddressProvider],
 })

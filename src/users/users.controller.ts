@@ -6,6 +6,7 @@ import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { AssignToMeDto } from './dto/assign-to-me-.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -28,6 +29,11 @@ export class UsersController {
   @Get('me')
   async getMe(@GetUser('id') loggedInUserId: string) {
     return await this.usersService.getMe(loggedInUserId);
+  }
+
+  @Post('assign-to-me')
+  async assignToMe(@GetUser('id') loggedInUserId: string, @Body() assignToMeDto: AssignToMeDto) {
+    return this.usersService.assignToMe(loggedInUserId, assignToMeDto);
   }
 
   @Post()
