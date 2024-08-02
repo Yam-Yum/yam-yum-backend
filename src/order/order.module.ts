@@ -9,6 +9,7 @@ import { cartItemProvider } from 'src/cart/providers/cart-item.provider';
 import { AddressProvider } from 'src/users/providers/address.provider';
 import { orderProvider } from './providers/order.provider';
 import { UserProvider } from 'src/users/providers/user.provider';
+import { FilesService } from 'src/files/files.service';
 
 @Module({
   controllers: [OrderController],
@@ -22,6 +23,7 @@ import { UserProvider } from 'src/users/providers/user.provider';
     ...cartItemProvider,
     ...AddressProvider,
     ...UserProvider,
+    FilesService,
   ],
 })
 export class OrderModule {}
