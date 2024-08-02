@@ -33,7 +33,6 @@ import { FilesService } from './files/files.service';
   controllers: [AppController],
   providers: [
     AppService,
-    // Provide JwtAuthGuard Global
     {
       provide: 'APP_GUARD',
       useClass: JwtAuthGuard,
