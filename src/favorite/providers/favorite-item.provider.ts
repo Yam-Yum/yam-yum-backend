@@ -1,4 +1,4 @@
-import { FavoriteItem } from 'src/favorite/entities/favorite-Item.entity';
+import { FavoriteItem } from '../entities/favorite-item.entity';
 import { DataSource } from 'typeorm';
 
 export const FavoriteItemProviderToken = 'FAVORITE_ITEM_REPOSITORY';
