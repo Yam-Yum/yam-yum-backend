@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -7,13 +6,12 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AddressProvider, addressProviderToken } from './providers/address.provider';
+import { addressProviderToken } from './providers/address.provider';
 import { Address } from './entities/address.entity';
 import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { userProviderToken } from './providers/user.provider';
 import { User } from './entities/user.entity';
-import { Response } from 'src/shared/utils/response';
 
 @Injectable()
 export class UsersService {
@@ -68,35 +66,36 @@ export class UsersService {
   }
 
   async getMe(loggedInUserId: string) {
-    try {
-      const loggedInUserInfo = await this._userRepository.findOne({
-        where: { id: loggedInUserId },
-        select: [
-          'id',
-          'firstName',
-          'lastName',
-          'username',
-          'email',
-          'phoneNumber',
-          'profilePicture',
-          'role',
-          'gender',
-          'dateOfBirth',
-        ],
-        relations: ['addresses'],
-      });
+    const loggedInUserInfo = await this._userRepository.findOne({
+      where: { id: loggedInUserId },
+      relations: ['addresses', 'cart', 'favorite'],
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        username: true,
+        email: true,
+        phoneNumber: true,
+        dateOfBirth: true,
+        gender: true,
+        profilePicture: true,
+        role: true,
+        addresses: true,
+        cart: {
+          id: true,
+        },
+        favorite: {
+          id: true,
+        },
+      },
+    });
 
-      const userFavList = await this._dataSource
-        .createQueryBuilder()
-        .select('recipeId')
-        .from('user_favorite_recipes', 'ufr')
-        .where('ufr.usersId = :userId', { userId: loggedInUserId })
-        .getRawMany();
-      console.log('🚀 ~ UsersService ~ getMe ~ userFavList:', userFavList);
-
-      return new Response('Logged in user info', [{ loggedInUserInfo, userFavList }]).success();
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return {
+      ...loggedInUserInfo,
+      cart: undefined,
+      favorite: undefined,
+      cartId: loggedInUserInfo.cart.id,
+      favoriteId: loggedInUserInfo.favorite.id,
+    };
   }
 }
