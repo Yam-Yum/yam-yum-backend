@@ -8,7 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { addressProviderToken } from './providers/address.provider';
 import { Address } from './entities/address.entity';
-import { DataSource, In, QueryFailedError, Repository } from 'typeorm';
+import { In, QueryFailedError, Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { userProviderToken } from './providers/user.provider';
 import { User } from './entities/user.entity';
@@ -21,6 +21,11 @@ import { CartItem } from 'src/cart/entities/cartItem.entity';
 import { cartProviderToken } from 'src/cart/providers/cart.provider';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { cartItemProviderToken } from 'src/cart/providers/cart-item.provider';
+import { FavoriteItem } from 'src/favorite/entities/favorite-item.entity';
+import { Favorite } from 'src/favorite/entities/favorite.entity';
+import { FavoriteItemProviderToken } from 'src/favorite/providers/favorite-item.provider';
+import { FavoriteProviderToken } from 'src/favorite/providers/favorite.provider';
+import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
 
 @Injectable()
 export class UsersService {
@@ -37,7 +42,10 @@ export class UsersService {
     private readonly _cartRepository: Repository<Cart>,
     @Inject(cartItemProviderToken)
     private readonly _cartItemRepository: Repository<CartItem>,
-    private readonly _dataSource: DataSource,
+    @Inject(FavoriteProviderToken)
+    private readonly _favoriteRepository: Repository<Favorite>,
+    @Inject(FavoriteItemProviderToken)
+    private readonly _favoriteItemRepository: Repository<FavoriteItem>,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -116,59 +124,111 @@ export class UsersService {
     };
   }
 
-  async assignToMe(loggedInUserId: string, assignToMeDto: AssignToMeDto) {
-    console.log('loggedInUserId: ', loggedInUserId);
-    const { cart, addressIds, orderIds, favoriteRecipeIds } = assignToMeDto;
+  async assignToMe(currentUser: UserInJWTPayload, assignToMeDto: AssignToMeDto) {
+    const { cartRecipes, addressIds, orderIds, favoriteRecipeIds } = assignToMeDto;
+    const { id: loggedInUserId, favoriteId, cartId } = currentUser;
 
     const user = await this._userRepository.findOne({
       where: { id: loggedInUserId },
-      relations: ['cart', 'favorite'],
+      relations: {
+        cart: {
+          cartItems: true,
+        },
+        addresses: true,
+        orders: true,
+        favorite: {
+          favoriteItems: true,
+        },
+      },
     });
 
-    if (cart) {
-      const cartItems = await Promise.all(
-        cart.map(async (recipeDto) => {
-          const recipe = await this._recipeRepository.findOne({
-            where: { id: recipeDto.recipeId },
-          });
-          const cartItem = new CartItem();
-          cartItem.recipe = recipe;
-          cartItem.quantity = recipeDto.quantity;
-          cartItem.cart = user.cart;
-          return cartItem;
-        }),
-      );
-      console.log('cartItems: ', cartItems);
-
-      if (cartItems.length > 0) {
-        await this._cartItemRepository.save(cartItems);
-        user.cart.cartItems = cartItems;
-      }
-    }
-
+    // Assign Addresses
     if (addressIds.length > 0) {
-      const addresses = await this._addressRepository.findBy({ id: In(addressIds) });
+      const addresses = await this._addressRepository.findBy({
+        id: In(addressIds),
+        user: { id: null },
+      });
       user.addresses = addresses;
     }
 
     if (orderIds.length > 0) {
-      const orders = await this._orderRepository.findBy({ id: In(orderIds) });
+      const orders = await this._orderRepository.findBy({ id: In(orderIds), user: { id: null } });
       user.orders = orders;
     }
 
-    if (favoriteRecipeIds.length > 0) {
-      const favoriteRecipes = await this._recipeRepository.findBy({ id: In(favoriteRecipeIds) });
-      //Todo
-      // user.favoriteRecipes = favoriteRecipes;
+    // Assign Favorite Recipes
+    if (favoriteRecipeIds?.length > 0) {
+      await Promise.all(
+        favoriteRecipeIds.map(async (recipeId) => {
+          const favoriteItemExists = await this._favoriteItemRepository.findOne({
+            where: {
+              favorite: { id: favoriteId },
+              recipe: { id: recipeId },
+            },
+          });
+          if (favoriteItemExists) return favoriteItemExists;
+          // Create favorite item
+          await this._favoriteItemRepository.save({
+            recipe: { id: recipeId },
+            favorite: {
+              id: favoriteId,
+            },
+          });
+        }),
+      );
     }
 
-    //Todo
-    // await this._userRepository.save(user);
+    // Assign Cart Items
+    if (cartRecipes?.length > 0) {
+      await Promise.all(
+        cartRecipes.map(async (recipeDto) => {
+          const cartItemExists = await this._cartItemRepository.findOne({
+            where: {
+              cart: { id: cartId },
+              recipe: { id: recipeDto.recipeId },
+            },
+          });
+          if (cartItemExists) {
+            await this._cartItemRepository.save({
+              id: cartItemExists.id,
+              recipe: { id: recipeDto.recipeId },
+              quantity: cartItemExists.quantity + recipeDto.quantity,
+              cart: {
+                id: cartId,
+              },
+            });
+          }
+          // Create cart item
+          await this._cartItemRepository.save({
+            recipe: { id: recipeDto.recipeId },
+            quantity: recipeDto.quantity,
+            cart: {
+              id: cartId,
+            },
+          });
+        }),
+      );
+    }
+
+    await this._userRepository.save(user);
 
     return {
-      cartId: user.cart.id,
-      //Todo
-      // favoriteId : user.favorite.id
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender,
+        profilePicture: user.profilePicture,
+        role: user.role,
+        addresses: user.addresses.map((address) => address.id),
+        cartId: user.cart.id,
+        favoriteId: user.favorite.id,
+        orders: user.orders.map((order) => order.id),
+      },
     };
   }
 }
