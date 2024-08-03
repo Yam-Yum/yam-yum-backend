@@ -6,6 +6,8 @@ import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { AssignToMeDto } from './dto/assign-to-me-.dto';
+import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
 
 @ApiTags('User')
 @Controller('users')
@@ -28,6 +30,14 @@ export class UsersController {
   @Get('me')
   async getMe(@GetUser('id') loggedInUserId: string) {
     return await this.usersService.getMe(loggedInUserId);
+  }
+
+  @Post('assign-to-me')
+  async assignToMe(
+    @GetUser() loggedInUser: UserInJWTPayload,
+    @Body() assignToMeDto: AssignToMeDto,
+  ) {
+    return this.usersService.assignToMe(loggedInUser, assignToMeDto);
   }
 
   @Post()
