@@ -13,7 +13,6 @@ import { userProviderToken } from 'src/users/providers/user.provider';
 import { User } from 'src/users/entities/user.entity';
 import { RecipeProviderToken } from 'src/recipe/providers/recipe.provider';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
-import dataSource from 'src/database/data-source';
 import { FilesService } from 'src/files/files.service';
 
 @Injectable()
@@ -21,8 +20,8 @@ export class FavoriteService {
   constructor(
     @Inject(FavoriteProviderToken)
     private readonly _favoriteRepository: Repository<Favorite>,
-    // @Inject(FavoriteItemProviderToken)
-    // private readonly _favoriteItemRepository: Repository<FavoriteItem>,
+    @Inject(FavoriteItemProviderToken)
+    private readonly _favoriteItemRepository: Repository<FavoriteItem>,
     @Inject(userProviderToken)
     private readonly _userRepository: Repository<User>,
     @Inject(RecipeProviderToken)
@@ -31,8 +30,6 @@ export class FavoriteService {
   ) {}
 
   async toggleToFavorite(currentUserFavoriteId: string, recipeId: string) {
-    // :TODO:
-    const _favoriteItemRepository = await dataSource.getRepository(FavoriteItem);
     try {
       const recipeExisted = await this._recipeRepository.findOne({
         where: { id: recipeId },
@@ -42,7 +39,7 @@ export class FavoriteService {
         throw new NotFoundException('Recipe not found');
       }
 
-      const favoriteItemExists = await _favoriteItemRepository.findOne({
+      const favoriteItemExists = await this._favoriteItemRepository.findOne({
         where: {
           favorite: { id: currentUserFavoriteId },
           recipe: { id: recipeId },
@@ -50,14 +47,14 @@ export class FavoriteService {
       });
 
       if (favoriteItemExists) {
-        await _favoriteItemRepository.remove(favoriteItemExists);
+        await this._favoriteItemRepository.remove(favoriteItemExists);
         return {
           removed: true,
         };
       }
 
       // Create favorite item
-      await _favoriteItemRepository.save({
+      await this._favoriteItemRepository.save({
         recipe: recipeExisted,
         favorite: {
           id: currentUserFavoriteId,
