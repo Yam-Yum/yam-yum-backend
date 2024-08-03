@@ -13,7 +13,7 @@ import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { userProviderToken } from './providers/user.provider';
 import { User } from './entities/user.entity';
-import { Response } from 'src/utils/response';
+import { Response } from 'src/shared/utils/response';
 
 @Injectable()
 export class UsersService {

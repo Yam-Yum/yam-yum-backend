@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { cartItemProviderToken } from './providers/cart-item.provider';
 import { CartItem } from './entities/cartItem.entity';
-import { Response } from 'src/utils/response';
+import { Response } from 'src/shared/utils/response';
 import { addressProviderToken } from 'src/users/providers/address.provider';
 import { Address } from 'src/users/entities/address.entity';
 import OrderConstants from 'src/order/utils/order-constants';

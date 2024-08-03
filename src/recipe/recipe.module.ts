@@ -23,6 +23,6 @@ import { RecipeVideoProvider } from './providers/recipe-video.provider';
     { provide: 'DATA_SOURCE', useValue: dataSource },
     FilesService,
   ],
-  exports: [...RecipeProvider, ...RecipeImageProvider, ...RecipeVideoProvider],
+  exports: [RecipeService, ...RecipeProvider, ...RecipeImageProvider, ...RecipeVideoProvider],
 })
 export class RecipeModule {}

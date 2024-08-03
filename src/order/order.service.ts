@@ -16,7 +16,7 @@ import { User } from 'src/users/entities/user.entity';
 import { RecipeProviderToken } from 'src/recipe/providers/recipe.provider';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { generateRandomOrderNumber } from './utils/generate-order-number';
-import { Response } from 'src/utils/response';
+import { Response } from 'src/shared/utils/response';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import OrderConstants from './utils/order-constants';
 import { CheckoutDto } from './dto/checkout.dto';
