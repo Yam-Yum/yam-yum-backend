@@ -16,6 +16,8 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { RecipeQueryDto } from './dto/recipe-Query.dto';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -41,7 +43,7 @@ export class RecipeController {
 
   @Post('list')
   @SkipAuth()
-  getList(@Body() body: RecipeQueryDto) {
+  getList(@Body() body: RecipeQueryDto, @GetUser() user: UserInJWTPayload) {
     console.log('RecipeQueryDto: ', body);
     const {
       searchKeyword,
@@ -72,6 +74,8 @@ export class RecipeController {
       sortByPrice,
       pageNumber,
       pageSize,
+
+      user,
     );
   }
 

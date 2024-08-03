@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
-import { AtLeastOneRequired } from '../pipes/at-least-one-required.pipe';
+import { AtLeastOneRequired } from '../shared/pipes/at-least-one-required.pipe';
 import { SkipAuth } from './decorators/skip-auth.decorator';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SignupDto } from './dto/signup.dto';

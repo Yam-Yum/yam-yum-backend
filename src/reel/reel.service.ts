@@ -7,7 +7,7 @@ import {
 import { RecipeVideoProviderToken } from 'src/recipe/providers/recipe-video.provider';
 import { DataSource, Repository } from 'typeorm';
 import { RecipeVideo } from 'src/recipe/entities/recipe-video.entity';
-import { Response } from 'src/utils/response';
+import { Response } from 'src/shared/utils/response';
 import { RecipeProviderToken } from 'src/recipe/providers/recipe.provider';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { userProviderToken } from 'src/users/providers/user.provider';

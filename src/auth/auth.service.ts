@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { User, UserRole } from '../users/entities/user.entity';
 import dataSource from '../database/data-source';
 import { RefreshToken } from '../users/entities/refresh_token.entity';
-import { generateDate } from 'src/utils/data-generator';
+import { generateDate } from 'src/shared/utils/data-generator';
 import { SignupDto } from './dto/signup.dto';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { ConfirmOtpDto } from './dto/confirm-otp.dto';
