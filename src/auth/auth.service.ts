@@ -23,12 +23,16 @@ import { Registration } from 'src/users/entities/registration.entity';
 import { cartProviderToken } from 'src/cart/providers/cart.provider';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Repository } from 'typeorm';
+import { FavoriteProviderToken } from 'src/favorite/providers/favorite.provider';
+import { Favorite } from 'src/favorite/entities/favorite.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(cartProviderToken)
     private readonly _cartRepository: Repository<Cart>,
+    @Inject(FavoriteProviderToken)
+    private readonly _favoriteRepository: Repository<Favorite>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -53,14 +57,35 @@ export class AuthService {
     }
 
     // Get User's Cart id
-    const userCart = await this._cartRepository.findOne({
+    let userCart = await this._cartRepository.findOne({
       where: {
         user: { id: foundUser.id },
       },
     });
 
     if (!userCart && foundUser.role === UserRole.CLIENT) {
-      throw new NotFoundException('Cart not found');
+      // Create cart
+      const createdCart = await this._cartRepository.save({
+        user: foundUser,
+      });
+
+      userCart = createdCart;
+    }
+
+    // Get User's favorite id
+    let userFavorite = await this._favoriteRepository.findOne({
+      where: {
+        user: { id: foundUser.id },
+      },
+    });
+
+    if (!userFavorite && foundUser.role === UserRole.CLIENT) {
+      // Create favorite
+      const createdFavorite = await this._favoriteRepository.save({
+        user: foundUser,
+      });
+
+      userFavorite = createdFavorite;
     }
 
     // 3) Generate tokens
@@ -68,6 +93,7 @@ export class AuthService {
       id: foundUser.id,
       role: foundUser.role,
       cartId: userCart?.id || null,
+      favoriteId: userFavorite?.id || null,
     });
 
     const refreshToken = await this._generateRefreshToken(
@@ -204,7 +230,12 @@ export class AuthService {
     return await bcrypt.compare(loginDto.password, userPassword);
   }
 
-  private async _generateAccessToken(payload: { id: string; role: UserRole; cartId: string }) {
+  private async _generateAccessToken(payload: {
+    id: string;
+    role: UserRole;
+    cartId: string;
+    favoriteId: string;
+  }) {
     return this.jwtService.sign(payload);
   }
 

@@ -18,6 +18,6 @@ import { UserProvider } from './providers/user.provider';
     ...UserProvider,
     { provide: 'DATA_SOURCE', useValue: dataSource },
   ],
-  exports: [...AddressProvider],
+  exports: [...AddressProvider, ...UserProvider],
 })
 export class UsersModule {}

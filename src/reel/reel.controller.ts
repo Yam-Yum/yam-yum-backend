@@ -3,8 +3,6 @@ import { ReelService } from './reel.service';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { ReelsQueryDto } from './dto/reels-query.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { AddToFavoriteDto } from './dto/add-to-fav.dto';
-import { LikeReelDto } from './dto/like-reel.dto';
 import { AddCommentDto } from './dto/add-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
