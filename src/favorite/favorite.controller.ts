@@ -2,7 +2,9 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
 import { ToggleFavoriteDto } from './dto/toggle-to-fav.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Favorite')
 @Controller('favorite')
 export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}

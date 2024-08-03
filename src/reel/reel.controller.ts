@@ -5,7 +5,9 @@ import { ReelsQueryDto } from './dto/reels-query.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { AddCommentDto } from './dto/add-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Reel')
 @Controller('reels')
 export class ReelController {
   constructor(private readonly reelService: ReelService) {}
@@ -17,7 +19,7 @@ export class ReelController {
     return await this.reelService.getReels(pageNumber, pageSize);
   }
 
-  @Get(':videoId/like')
+  @Post(':videoId/like')
   async toggleLikeReel(@GetUser('id') userId: string, @Param('videoId') videoId: string) {
     return await this.reelService.toggleLikeReel(userId, videoId);
   }

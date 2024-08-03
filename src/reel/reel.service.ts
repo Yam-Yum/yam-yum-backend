@@ -46,9 +46,23 @@ export class ReelService {
           recipe: {
             id: true,
           },
+          likesCount: true,
+          comments: {
+            id: true,
+            content: true,
+            user: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
         },
         relations: {
           recipe: true,
+          likes: true,
+          comments: {
+            user: true,
+          },
         },
         skip: (pageNumber - 1) * pageSize,
         take: pageSize,
@@ -62,6 +76,8 @@ export class ReelService {
               id: recipeVideo.id,
               video: await this._fileService.getFileFromS3(recipeVideo.videoName),
               recipeId: recipeVideo.recipe.id,
+              likesCount: recipeVideo.likesCount,
+              comments: recipeVideo.comments,
             };
           }),
         ),

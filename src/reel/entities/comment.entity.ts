@@ -8,7 +8,6 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   Relation,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
