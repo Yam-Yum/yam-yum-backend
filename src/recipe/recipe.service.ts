@@ -15,6 +15,10 @@ import { RecipeImageProviderToken } from './providers/recipe-image.provider';
 import { RecipeImage } from './entities/recipe-image.entity';
 import { RecipeVideo } from './entities/recipe-video.entity';
 import { RecipeVideoProviderToken } from './providers/recipe-video.provider';
+import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
+import { CartItem } from 'src/cart/entities/cartItem.entity';
+import dataSource from 'src/database/data-source';
+import { FavoriteItem } from 'src/favorite/entities/favorite-item.entity';
 
 @Injectable()
 export class RecipeService {
@@ -112,6 +116,8 @@ export class RecipeService {
     sortByPrice?: 'ASC' | 'DESC',
     pageNumber: number = 1,
     pagesize: number = 10,
+
+    user?: UserInJWTPayload,
   ) {
     console.log('recipeIds: ', recipeIds);
     const query = this.recipeRepository
@@ -166,25 +172,7 @@ export class RecipeService {
     const [recipes, total] = await query.getManyAndCount();
 
     // Transform recipes to include videoUrl and imageUrls
-    const transformedRecipes = await Promise.all(
-      recipes.map(async (recipe) => {
-        let videoUrl;
-        if (recipe.video) {
-          videoUrl = await this.filesService.getFileFromS3(recipe.video.videoName);
-        }
-
-        return {
-          ...recipe,
-          video: videoUrl || null,
-          images: await Promise.all(
-            recipe.images.map(
-              async (image) => await this.filesService.getFileFromS3(image.imageName),
-            ),
-          ),
-        };
-      }),
-    );
-
+    const transformedRecipes = await this.patchQuantityFavoriteToRecipes(user, recipes);
     return {
       totalCount: total,
       data: transformedRecipes,
@@ -240,21 +228,10 @@ export class RecipeService {
       throw new NotFoundException('Recipe not found');
     }
 
-    //  get signed url for each image
+    // Transform recipe to include videoUrl and imageUrls
+    const transformedRecipe = await this.patchQuantityFavoriteToRecipes(null, [recipe]);
 
-    const imageUrls = await Promise.all(
-      recipe.images.map(async (image) => {
-        const imageUrl = await this.filesService.getFileFromS3(image.imageName);
-        return {
-          imageUrl,
-        };
-      }),
-    );
-
-    //  get signed url for video
-    const videoUrl = await this.filesService.getFileFromS3(recipe.video?.videoName);
-
-    return { ...recipe, images: [...imageUrls.map((image) => image.imageUrl)], video: videoUrl };
+    return transformedRecipe[0];
   }
 
   update(id: number, updateRecipeDto: UpdateRecipeDto) {
@@ -283,5 +260,51 @@ export class RecipeService {
         id: recipeId,
       },
     });
+  }
+
+  // public
+  async patchQuantityFavoriteToRecipes(currentUser: UserInJWTPayload, recipes: Partial<Recipe>[]) {
+    // Fetch user's cart items and favorite recipes
+    let cartItems = [];
+    let favoriteRecipes = [];
+
+    if (currentUser) {
+      cartItems = await dataSource
+        .getRepository(CartItem)
+        .find({ where: { cart: { id: currentUser.cartId } }, relations: { recipe: true } });
+
+      favoriteRecipes = await dataSource
+        .getRepository(FavoriteItem)
+        .find({ where: { favorite: { id: currentUser.favoriteId } }, relations: { recipe: true } });
+    }
+
+    // Helper function to transform recipes
+    const transformRecipes = async (recipes: Partial<Recipe>[]) => {
+      return await Promise.all(
+        recipes.map(async (recipe) => {
+          let videoUrl;
+          if (recipe.video) {
+            videoUrl = await this.filesService.getFileFromS3(recipe.video.videoName);
+          }
+
+          const images = await this.filesService.getMultipleFilesFromS3(
+            recipe.images.map((image) => image.imageName),
+          );
+
+          const cartItem = cartItems.find((item) => item.recipe?.id === recipe.id);
+          const isFavorite = favoriteRecipes.some((favorite) => favorite.recipe?.id === recipe.id);
+
+          return {
+            ...recipe,
+            video: videoUrl || null,
+            images,
+            cartQuantity: currentUser ? (cartItem ? cartItem.quantity : 0) : null,
+            isFavorite: currentUser ? (isFavorite ? true : false) : null,
+          };
+        }),
+      );
+    };
+
+    return await transformRecipes(recipes);
   }
 }

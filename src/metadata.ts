@@ -8,15 +8,21 @@ export default async () => {
     ['./cart/entities/cart.entity']: await import('./cart/entities/cart.entity'),
     ['./cart/entities/cartItem.entity']: await import('./cart/entities/cartItem.entity'),
     ['./review/entities/review.entity']: await import('./review/entities/review.entity'),
+    ['./recipe/entities/recipe-video.entity']: await import(
+      './recipe/entities/recipe-video.entity'
+    ),
+    ['./reel/entities/like.entity']: await import('./reel/entities/like.entity'),
+    ['./reel/entities/comment.entity']: await import('./reel/entities/comment.entity'),
+    ['./favorite/entities/favorite.entity']: await import('./favorite/entities/favorite.entity'),
+    ['./favorite/entities/favorite-item.entity']: await import(
+      './favorite/entities/favorite-item.entity'
+    ),
     ['./users/entities/refresh_token.entity']: await import(
       './users/entities/refresh_token.entity'
     ),
     ['./users/entities/registration.entity']: await import('./users/entities/registration.entity'),
     ['./recipe/entities/recipe-image.entity']: await import(
       './recipe/entities/recipe-image.entity'
-    ),
-    ['./recipe/entities/recipe-video.entity']: await import(
-      './recipe/entities/recipe-video.entity'
     ),
     ['./category/entities/category.entity']: await import('./category/entities/category.entity'),
     ['./order/dto/recipe.dto']: await import('./order/dto/recipe.dto'),
@@ -150,6 +156,76 @@ export default async () => {
           },
         ],
         [
+          import('./reel/entities/comment.entity'),
+          {
+            Comment: {
+              id: { required: true, type: () => String },
+              content: { required: true, type: () => String },
+              createdAt: { required: true, type: () => Date },
+              updatedAt: { required: true, type: () => Date },
+              recipeVideo: {
+                required: true,
+                type: () => t['./recipe/entities/recipe-video.entity'].RecipeVideo,
+              },
+              user: { required: true, type: () => t['./users/entities/user.entity'].User },
+            },
+          },
+        ],
+        [
+          import('./recipe/entities/recipe-video.entity'),
+          {
+            RecipeVideo: {
+              id: { required: true, type: () => String },
+              videoName: { required: true, type: () => String },
+              likesCount: { required: true, type: () => Number },
+              recipe: { required: true, type: () => t['./recipe/entities/recipe.entity'].Recipe },
+              likes: { required: true, type: () => t['./reel/entities/like.entity'].Like },
+              comments: { required: true, type: () => t['./reel/entities/comment.entity'].Comment },
+            },
+          },
+        ],
+        [
+          import('./reel/entities/like.entity'),
+          {
+            Like: {
+              id: { required: true, type: () => String },
+              createdAt: { required: true, type: () => Date },
+              updatedAt: { required: true, type: () => Date },
+              recipeVideo: {
+                required: true,
+                type: () => t['./recipe/entities/recipe-video.entity'].RecipeVideo,
+              },
+              user: { required: true, type: () => t['./users/entities/user.entity'].User },
+            },
+          },
+        ],
+        [
+          import('./favorite/entities/favorite-item.entity'),
+          {
+            FavoriteItem: {
+              id: { required: true, type: () => String },
+              favorite: {
+                required: true,
+                type: () => t['./favorite/entities/favorite.entity'].Favorite,
+              },
+              recipe: { required: true, type: () => t['./recipe/entities/recipe.entity'].Recipe },
+            },
+          },
+        ],
+        [
+          import('./favorite/entities/favorite.entity'),
+          {
+            Favorite: {
+              id: { required: true, type: () => String },
+              user: { required: true, type: () => t['./users/entities/user.entity'].User },
+              favoriteItems: {
+                required: true,
+                type: () => [t['./favorite/entities/favorite-item.entity'].FavoriteItem],
+              },
+            },
+          },
+        ],
+        [
           import('./users/entities/user.entity'),
           {
             User: {
@@ -188,6 +264,15 @@ export default async () => {
                 required: true,
                 type: () => [t['./review/entities/review.entity'].Review],
               },
+              likes: { required: true, type: () => [t['./reel/entities/like.entity'].Like] },
+              comments: {
+                required: true,
+                type: () => [t['./reel/entities/comment.entity'].Comment],
+              },
+              favorite: {
+                required: true,
+                type: () => t['./favorite/entities/favorite.entity'].Favorite,
+              },
             },
           },
         ],
@@ -197,16 +282,6 @@ export default async () => {
             RecipeImage: {
               id: { required: true, type: () => String },
               imageName: { required: true, type: () => String },
-              recipe: { required: true, type: () => t['./recipe/entities/recipe.entity'].Recipe },
-            },
-          },
-        ],
-        [
-          import('./recipe/entities/recipe-video.entity'),
-          {
-            RecipeVideo: {
-              id: { required: true, type: () => String },
-              videoName: { required: true, type: () => String },
               recipe: { required: true, type: () => t['./recipe/entities/recipe.entity'].Recipe },
             },
           },
@@ -268,6 +343,21 @@ export default async () => {
             },
           },
         ],
+        [
+          import('./recipe/dto/create-recipe.dto'),
+          {
+            CreateRecipeDto: {
+              title: { required: true, type: () => String },
+              description: { required: true, type: () => String },
+              preparationTimeInMinutes: { required: true, type: () => Number },
+              size: { required: false, enum: t['./recipe/entities/recipe.entity'].RecipeSize },
+              price: { required: true, type: () => Number },
+              categoryId: { required: true, type: () => String },
+              authorId: { required: true, type: () => String },
+            },
+          },
+        ],
+        [import('./recipe/dto/update-recipe.dto'), { UpdateRecipeDto: {} }],
         [import('./users/dto/create-user.dto'), { CreateUserDto: {} }],
         [import('./users/dto/update-user.dto'), { UpdateUserDto: {} }],
         [
@@ -329,36 +419,9 @@ export default async () => {
           { ConfirmOtpDto: { otp: { required: true, type: () => String } } },
         ],
         [
-          import('./category/dto/create-category.dto'),
-          {
-            CreateCategoryDto: {
-              name: { required: true, type: () => String },
-              image: { required: true, type: () => String },
-            },
-          },
+          import('./favorite/dto/toggle-to-fav.dto'),
+          { ToggleFavoriteDto: { recipeId: { required: true, type: () => String } } },
         ],
-        [import('./category/dto/update-category.dto'), { UpdateCategoryDto: {} }],
-        [import('./cart/dto/create-cart.dto'), { CreateCartDto: {} }],
-        [import('./cart/dto/update-cart.dto'), { UpdateCartDto: {} }],
-        [
-          import('./cart/dto/add-to-cart.dto'),
-          { AddToCartDto: { recipeId: { required: true, type: () => String } } },
-        ],
-        [
-          import('./recipe/dto/create-recipe.dto'),
-          {
-            CreateRecipeDto: {
-              title: { required: true, type: () => String },
-              description: { required: true, type: () => String },
-              preparationTimeInMinutes: { required: true, type: () => Number },
-              size: { required: false, enum: t['./recipe/entities/recipe.entity'].RecipeSize },
-              price: { required: true, type: () => Number },
-              categoryId: { required: true, type: () => String },
-              authorId: { required: true, type: () => String },
-            },
-          },
-        ],
-        [import('./recipe/dto/update-recipe.dto'), { UpdateRecipeDto: {} }],
         [
           import('./recipe/dto/recipe-Query.dto'),
           {
@@ -378,6 +441,22 @@ export default async () => {
               pageSize: { required: true, type: () => Number, default: 10 },
             },
           },
+        ],
+        [
+          import('./category/dto/create-category.dto'),
+          {
+            CreateCategoryDto: {
+              name: { required: true, type: () => String },
+              image: { required: true, type: () => String },
+            },
+          },
+        ],
+        [import('./category/dto/update-category.dto'), { UpdateCategoryDto: {} }],
+        [import('./cart/dto/create-cart.dto'), { CreateCartDto: {} }],
+        [import('./cart/dto/update-cart.dto'), { UpdateCartDto: {} }],
+        [
+          import('./cart/dto/add-to-cart.dto'),
+          { AddToCartDto: { recipeId: { required: true, type: () => String } } },
         ],
         [
           import('./order/dto/create-order.dto'),
@@ -430,6 +509,37 @@ export default async () => {
         ],
         [import('./review/dto/create-review.dto'), { CreateReviewDto: {} }],
         [import('./review/dto/update-review.dto'), { UpdateReviewDto: {} }],
+        [
+          import('./reel/dto/add-comment.dto'),
+          {
+            AddCommentDto: {
+              videoId: { required: true, type: () => String },
+              content: { required: true, type: () => String },
+            },
+          },
+        ],
+        [
+          import('./reel/dto/update-comment.dto'),
+          {
+            UpdateCommentDto: {
+              commentId: { required: true, type: () => String },
+              content: { required: true, type: () => String },
+            },
+          },
+        ],
+        [
+          import('./reel/dto/reels-query.dto'),
+          {
+            ReelsQueryDto: {
+              pageNumber: { required: true, type: () => Number, default: 1 },
+              pageSize: { required: true, type: () => Number, default: 10 },
+            },
+          },
+        ],
+        [
+          import('./reel/dto/like-reel.dto'),
+          { LikeReelDto: { videoId: { required: true, type: () => String } } },
+        ],
       ],
       controllers: [
         [import('./app.controller'), { AppController: { getHomePage: {} } }],
@@ -451,6 +561,22 @@ export default async () => {
         [
           import('./auth/auth.controller'),
           { AuthController: { login: {}, signup: {}, requestOtp: {}, confirmOtp: {} } },
+        ],
+        [
+          import('./favorite/favorite.controller'),
+          { FavoriteController: { toggleToFavorite: { type: Object }, getMyFavorite: {} } },
+        ],
+        [
+          import('./recipe/recipe.controller'),
+          {
+            RecipeController: {
+              create: { type: [t['./recipe/entities/recipe.entity'].Recipe] },
+              getList: {},
+              getDetails: {},
+              update: { type: String },
+              remove: { type: String },
+            },
+          },
         ],
         [
           import('./category/category.controller'),
@@ -480,18 +606,6 @@ export default async () => {
           },
         ],
         [
-          import('./recipe/recipe.controller'),
-          {
-            RecipeController: {
-              create: { type: [t['./recipe/entities/recipe.entity'].Recipe] },
-              getList: {},
-              getDetails: {},
-              update: { type: String },
-              remove: { type: String },
-            },
-          },
-        ],
-        [
           import('./order/order.controller'),
           {
             OrderController: {
@@ -515,6 +629,17 @@ export default async () => {
               findOne: { type: String },
               update: { type: String },
               remove: { type: String },
+            },
+          },
+        ],
+        [
+          import('./reel/reel.controller'),
+          {
+            ReelController: {
+              getReels: {},
+              toggleLikeReel: {},
+              addComment: {},
+              updateComment: { type: String },
             },
           },
         ],

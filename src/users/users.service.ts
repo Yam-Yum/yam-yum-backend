@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -9,11 +8,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { addressProviderToken } from './providers/address.provider';
 import { Address } from './entities/address.entity';
-import { In, QueryFailedError, Repository } from 'typeorm';
+import { DataSource, In, QueryFailedError, Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { userProviderToken } from './providers/user.provider';
 import { User } from './entities/user.entity';
-import { Response } from 'src/utils/response';
 import { AssignToMeDto } from './dto/assign-to-me-.dto';
 import { RecipeProviderToken } from 'src/recipe/providers/recipe.provider';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
@@ -39,6 +37,7 @@ export class UsersService {
     private readonly _cartRepository: Repository<Cart>,
     @Inject(cartItemProviderToken)
     private readonly _cartItemRepository: Repository<CartItem>,
+    private readonly _dataSource: DataSource,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -84,29 +83,37 @@ export class UsersService {
   }
 
   async getMe(loggedInUserId: string) {
-    try {
-      return new Response('Logged in user info', [
-        await this._userRepository.findOne({
-          where: { id: loggedInUserId },
-          select: [
-            'id',
-            'firstName',
-            'lastName',
-            'username',
-            'email',
-            'phoneNumber',
-            'profilePicture',
-            'role',
-            'gender',
-            'dateOfBirth',
-          ],
+    const loggedInUserInfo = await this._userRepository.findOne({
+      where: { id: loggedInUserId },
+      relations: ['addresses', 'cart', 'favorite'],
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        username: true,
+        email: true,
+        phoneNumber: true,
+        dateOfBirth: true,
+        gender: true,
+        profilePicture: true,
+        role: true,
+        addresses: true,
+        cart: {
+          id: true,
+        },
+        favorite: {
+          id: true,
+        },
+      },
+    });
 
-          relations: ['addresses'],
-        }),
-      ]).success();
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return {
+      ...loggedInUserInfo,
+      cart: undefined,
+      favorite: undefined,
+      cartId: loggedInUserInfo.cart.id,
+      favoriteId: loggedInUserInfo.favorite.id,
+    };
   }
 
   async assignToMe(loggedInUserId: string, assignToMeDto: AssignToMeDto) {

@@ -15,6 +15,9 @@ import { Address } from './address.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Review } from 'src/review/entities/review.entity';
+import { Like } from 'src/reel/entities/like.entity';
+import { Comment } from 'src/reel/entities/comment.entity';
+import { Favorite } from 'src/favorite/entities/favorite.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -102,4 +105,13 @@ export class User {
 
   @OneToMany(() => Review, (review) => review.user)
   reviews: Relation<Review[]>;
+
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Relation<Like[]>;
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Relation<Comment[]>;
+
+  @OneToOne(() => Favorite, (favorite) => favorite.user)
+  favorite: Relation<Favorite>;
 }

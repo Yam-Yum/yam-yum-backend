@@ -14,6 +14,8 @@ import { RecipeModule } from './recipe/recipe.module';
 import { OrderModule } from './order/order.module';
 import { ReviewModule } from './review/review.module';
 import { FilesService } from './files/files.service';
+import { ReelModule } from './reel/reel.module';
+import { FavoriteModule } from './favorite/favorite.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { FilesService } from './files/files.service';
     RecipeModule,
     OrderModule,
     ReviewModule,
+    ReelModule,
+    FavoriteModule,
   ],
   controllers: [AppController],
   providers: [

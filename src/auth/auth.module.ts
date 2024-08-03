@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { cartProvider } from 'src/cart/providers/cart.provider';
 import dataSource from 'src/database/data-source';
+import { FavoriteModule } from 'src/favorite/favorite.module';
 
 @Module({
   imports: [
@@ -18,6 +19,8 @@ import dataSource from 'src/database/data-source';
       }),
       inject: [ConfigService],
     }),
+
+    FavoriteModule,
   ],
   controllers: [AuthController],
   providers: [

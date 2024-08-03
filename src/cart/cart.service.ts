@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
 import { cartItemProviderToken } from './providers/cart-item.provider';
 import { CartItem } from './entities/cartItem.entity';
-import { Response } from 'src/utils/response';
+import { Response } from 'src/shared/utils/response';
 import { addressProviderToken } from 'src/users/providers/address.provider';
 import { Address } from 'src/users/entities/address.entity';
 import OrderConstants from 'src/order/utils/order-constants';
@@ -30,7 +30,7 @@ export class CartService {
     private readonly _cartItemRepository: Repository<CartItem>,
     @Inject(addressProviderToken)
     private readonly _addressRepository: Repository<Address>,
-    // private readonly _filesService: FilesService,
+    private readonly _filesService: FilesService,
   ) {}
 
   async addToCart(addToCartDto: AddToCartDto, loggedInUserCartId: string) {
@@ -152,6 +152,9 @@ export class CartService {
             title: true,
             description: true,
             price: true,
+            rate: true,
+            orderCount: true,
+            preparationTimeInMinutes: true,
             images: true,
           },
         },
@@ -166,7 +169,7 @@ export class CartService {
     const imageNames = cart.cartItems.map((item) =>
       item.recipe.images.map((image) => image.imageName),
     );
-    // const images = await this._filesService.getMultipleFilesFromS3(imageNames.flat());
+    const images = await this._filesService.getMultipleFilesFromS3(imageNames.flat());
 
     return {
       ...cart,
@@ -174,7 +177,7 @@ export class CartService {
         ...item,
         recipe: {
           ...item.recipe,
-          // images,
+          images,
         },
       })),
     };

@@ -26,6 +26,6 @@ import { cartItemProvider } from 'src/cart/providers/cart-item.provider';
     ...cartProvider,
     ...cartItemProvider,
   ],
-  exports: [...AddressProvider],
+  exports: [...AddressProvider, ...UserProvider],
 })
 export class UsersModule {}
