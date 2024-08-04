@@ -10,6 +10,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { categoryProviderToken } from './providers/category.provider';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -52,8 +53,7 @@ export class CategoryService {
               allCategories.map(async (category) => {
                 if (category.image)
                   category.image = await this.filesService.getFileFromS3(category.image);
-
-                delete category.isActive;
+                delete category.deletedAt;
                 return category;
               }),
             )
@@ -73,15 +73,14 @@ export class CategoryService {
       // Get Image from S3
       if (category.image) category.image = await this.filesService.getFileFromS3(category.image);
 
-      delete category.isActive;
-
+      delete category.deletedAt;
       return category;
     } catch (error) {
       throw error;
     }
   }
 
-  async update(id: string, updateCategoryDto: any, image: Express.Multer.File) {
+  async update(id: string, updateCategoryDto: UpdateCategoryDto, image: Express.Multer.File) {
     try {
       let updateCategoryResult!: any;
 
@@ -104,17 +103,11 @@ export class CategoryService {
     }
   }
 
-  async remove(id: string) {
-    try {
-      const updateCategoryResult = await this.categoryRepository.update(id, {
-        isActive: false,
-      });
+  async softDelete(userId: string): Promise<void> {
+    await this.categoryRepository.update(userId, { deletedAt: new Date() });
+  }
 
-      if (updateCategoryResult.affected === 0) throw new NotFoundException('Category not found');
-
-      return { id };
-    } catch (error) {
-      throw error;
-    }
+  async restore(userId: string): Promise<void> {
+    await this.categoryRepository.update(userId, { deletedAt: null });
   }
 }

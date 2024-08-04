@@ -16,6 +16,7 @@ import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { createParseFilePipe } from 'src/shared/pipes/file-parse.pipe';
 
 @ApiTags('Category')
 @Controller('category')
@@ -26,7 +27,7 @@ export class CategoryController {
   @UseInterceptors(FileInterceptor('image'))
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
-    @UploadedFile() image: Express.Multer.File,
+    @UploadedFile(createParseFilePipe('3MB', ['jpg', 'jpeg', 'png'])) image: Express.Multer.File,
   ) {
     return await this.categoryService.create(createCategoryDto, image);
   }
@@ -55,6 +56,11 @@ export class CategoryController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return this.categoryService.remove(id);
+    return this.categoryService.softDelete(id);
+  }
+
+  @Post('restore/:id')
+  async restore(@Param('id') id: string) {
+    return this.categoryService.restore(id);
   }
 }

@@ -2,6 +2,7 @@ import { Recipe } from 'src/recipe/entities/recipe.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -20,8 +21,8 @@ export class Category {
   @Column({ nullable: true })
   image: string;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @DeleteDateColumn({ nullable: true })
+  deletedAt: Date;
 
   @CreateDateColumn()
   createdAt: Date;
