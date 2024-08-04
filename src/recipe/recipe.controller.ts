@@ -81,8 +81,8 @@ export class RecipeController {
 
   @Get(':id')
   @SkipAuth()
-  getDetails(@Param('id') id: string) {
-    return this.recipeService.getDetails(id);
+  getDetails(@Param('id') id: string, @GetUser() user: UserInJWTPayload) {
+    return this.recipeService.getDetails(id, user);
   }
 
   @Patch(':id')

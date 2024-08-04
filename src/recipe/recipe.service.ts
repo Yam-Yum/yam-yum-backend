@@ -179,7 +179,7 @@ export class RecipeService {
     };
   }
 
-  async getDetails(id: string) {
+  async getDetails(id: string, user?: UserInJWTPayload) {
     console.log('id: ', id);
     const recipe = await this.recipeRepository.findOne({
       where: { id },
@@ -229,7 +229,7 @@ export class RecipeService {
     }
 
     // Transform recipe to include videoUrl and imageUrls
-    const transformedRecipe = await this.patchQuantityFavoriteToRecipes(null, [recipe]);
+    const transformedRecipe = await this.patchQuantityFavoriteToRecipes(user, [recipe]);
 
     return transformedRecipe[0];
   }
