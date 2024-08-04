@@ -13,4 +13,10 @@ export class AppController {
   getHomePage(@GetUser() user: UserInJWTPayload) {
     return this.appService.getHomePage(user);
   }
+
+  @SkipAuth()
+  @Get('file')
+  getFile() {
+    return this.appService.getFile();
+  }
 }

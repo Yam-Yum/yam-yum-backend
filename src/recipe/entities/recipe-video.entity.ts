@@ -19,7 +19,7 @@ export class RecipeVideo {
   @Column()
   videoName: string;
 
-  @Column()
+  @Column({ default: 0 })
   likesCount: number;
 
   // Relations

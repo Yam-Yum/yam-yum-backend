@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -18,6 +19,7 @@ import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { RecipeQueryDto } from './dto/recipe-Query.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
+import { createParseFilePipe } from 'src/shared/pipes/file-parse.pipe';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -36,9 +38,30 @@ export class RecipeController {
   )
   create(
     @Body() createRecipeDto: CreateRecipeDto,
-    @UploadedFiles() files: { images: Array<Express.Multer.File>; video: Express.Multer.File },
+    @UploadedFiles()
+    files: { images: Array<Express.Multer.File>; video: Array<Express.Multer.File> },
   ) {
-    return this.recipeService.create(createRecipeDto, files.images, files.video);
+    // Validate images
+    const imageValidationPipe = createParseFilePipe('2MB', ['jpg', 'jpeg', 'png']);
+    // Validate video
+    const videoValidationPipe = createParseFilePipe('30MB', ['mp4', 'mkv']);
+    // Check if images are present and validate
+    if (!files.images || files.images.length === 0) {
+      throw new BadRequestException('Images are required.');
+    }
+    // Validate images
+    files.images.forEach((image) => {
+      imageValidationPipe.transform(image);
+    });
+
+    // Validate video if present
+    if (files.video) {
+      files.video.forEach((video) => {
+        videoValidationPipe.transform(video);
+      });
+    }
+
+    return this.recipeService.create(createRecipeDto, files.images, files.video[0]);
   }
 
   @Post('list')

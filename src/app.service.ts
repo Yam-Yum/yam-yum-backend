@@ -56,4 +56,10 @@ export class AppService {
       categories,
     };
   }
+
+  async getFile() {
+    return this.filesService.getFileFromS3(
+      '7a2de7395dab0a61f0b9cf885f6f2d2e01d3b14313f48cfdd367970273882120',
+    );
+  }
 }
