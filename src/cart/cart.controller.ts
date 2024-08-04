@@ -1,33 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
-import { AddToCartDto } from './dto/add-to-cart.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { UpdateQuantityDto } from './dto/update-quantity';
 import { ApiTags } from '@nestjs/swagger';
+import { UpdateCartQuantityDTO } from './dto/update-cart-quantity.dto';
 
 @ApiTags('Cart')
 @Controller('cart')
 export class CartController {
   constructor(private readonly _cartService: CartService) {}
 
-  @Post()
-  async addToCart(
-    @GetUser('cartId') loggedInUserCartId: any,
-    @Body() addToCartDto: AddToCartDto,
-    // @Request() req,
+  @Post('quantity')
+  async updateCartQuantity(
+    @GetUser('cartId') loggedInUserCartId: string,
+    @Body() updateCartQuantityDTO: UpdateCartQuantityDTO,
   ) {
-    // console.log('🚀 ~ CartController ~ req:', req);
-    return this._cartService.addToCart(addToCartDto, loggedInUserCartId);
-  }
-
-  @Post('/change-quantity')
-  async changeCartItemQuantity(
-    @GetUser('cartId') loggedInUserCartId: any,
-    @Body() updateQuantityDto: UpdateQuantityDto,
-  ) {
-    return this._cartService.changeCartItemQuantity(updateQuantityDto, loggedInUserCartId);
+    return this._cartService.updateCartQuantity(updateCartQuantityDTO, loggedInUserCartId);
   }
 
   @Get('/checkout')

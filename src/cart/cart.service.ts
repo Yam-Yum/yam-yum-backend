@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UpdateCartDto } from './dto/update-cart.dto';
-import { AddToCartDto } from './dto/add-to-cart.dto';
 import { RecipeProviderToken } from 'src/recipe/providers/recipe.provider';
 import { Repository } from 'typeorm';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
@@ -18,6 +17,7 @@ import OrderConstants from 'src/order/utils/order-constants';
 import { cartProviderToken } from './providers/cart.provider';
 import { Cart } from './entities/cart.entity';
 import { FilesService } from 'src/files/files.service';
+import { UpdateCartQuantityDTO } from './dto/update-cart-quantity.dto';
 
 @Injectable()
 export class CartService {
@@ -33,73 +33,54 @@ export class CartService {
     private readonly _filesService: FilesService,
   ) {}
 
-  async addToCart(addToCartDto: AddToCartDto, loggedInUserCartId: string) {
-    console.log('🚀 ~ CartService ~ addToCart ~ loggedInUserId:', loggedInUserCartId);
+  async updateCartQuantity(
+    updateCartQuantityDTO: UpdateCartQuantityDTO,
+    loggedInUserCartId: string,
+  ) {
     // Validate recipe id
-    const { recipeId } = addToCartDto;
-    try {
-      const recipeExisted = await this._recipeRepository.findOne({
-        where: { id: recipeId },
-      });
-      if (!recipeExisted) {
-        throw new NotFoundException('Recipe not found');
-      }
-      const cartItemExists = await this._cartItemRepository.findOne({
-        where: {
-          cart: { id: loggedInUserCartId },
-          recipe: { id: recipeId },
-        },
-      });
-      if (cartItemExists) {
-        await this._cartItemRepository.save({
-          id: cartItemExists.id,
-          recipe: recipeExisted,
-          quantity: cartItemExists.quantity + 1,
-          cart: {
-            id: loggedInUserCartId,
-          },
-        });
+    const { recipeId } = updateCartQuantityDTO;
+    const recipeExisted = await this._recipeRepository.findOne({
+      where: { id: recipeId },
+    });
+    if (!recipeExisted) {
+      throw new NotFoundException('Recipe not found');
+    }
+    const cartItemExists = await this._cartItemRepository.findOne({
+      where: {
+        cart: { id: loggedInUserCartId },
+        recipe: { id: recipeId },
+      },
+    });
 
-        return new Response('Added to cart').created();
-      }
+    // Delete cart item
+    if (cartItemExists && updateCartQuantityDTO.quantity == 0) {
+      await this._cartItemRepository.delete({ id: cartItemExists.id });
+      return { cartItemId: cartItemExists.id };
+    }
 
-      // Create cart item
-      const createdCartItem = await this._cartItemRepository.save({
+    // Update cart item
+    if (cartItemExists) {
+      const updatedCartItem = await this._cartItemRepository.save({
+        id: cartItemExists.id,
         recipe: recipeExisted,
-        quantity: 1,
+        quantity: updateCartQuantityDTO.quantity || cartItemExists.quantity + 1,
         cart: {
           id: loggedInUserCartId,
         },
       });
-
-      return new Response('Added to cart', [createdCartItem]).created();
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+      return { cartItemId: updatedCartItem.id, quantity: updatedCartItem.quantity };
     }
-  }
 
-  async changeCartItemQuantity(updateQuantityDto, loggedInUserCartId) {
-    const { cartItemId, quantity } = updateQuantityDto;
-    const cartItem = await this._cartItemRepository.findOne({
-      where: { id: cartItemId },
-      relations: { cart: true },
+    // Create cart item
+    const createdCartItem = await this._cartItemRepository.save({
+      recipe: recipeExisted,
+      quantity: updateCartQuantityDTO.quantity || 1,
+      cart: {
+        id: loggedInUserCartId,
+      },
     });
-    if (!cartItem) {
-      throw new NotFoundException('Cart item not found');
-    }
 
-    if (cartItem.cart.id !== loggedInUserCartId) {
-      throw new NotFoundException('Cart item not found');
-    }
-    if (quantity == 0) {
-      await this._cartItemRepository.remove(cartItem);
-      return new Response('Updated cart item').success();
-    }
-    const updatedCartItem = await this._cartItemRepository.save({
-      id: cartItem.id,
-      quantity,
-    });
-    return new Response('Updated cart item', [updatedCartItem]).success();
+    return { cartItemId: createdCartItem.id, quantity: createdCartItem.quantity };
   }
 
   async cartCheckout(loggedInUser: any) {
