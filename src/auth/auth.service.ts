@@ -160,9 +160,19 @@ export class AuthService {
     //  4) send email
     // :TODO: send email
 
+    const loginDTO: LoginDto = {
+      email: signup.email,
+      password: signup.password,
+      phoneNumber: null,
+      username: null,
+    };
+    // create token
+    const tokens = await this.login(loginDTO);
+
     return {
       message: 'User registered successfully',
       userId: user.id,
+      ...tokens,
     };
   }
 
