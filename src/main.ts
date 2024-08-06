@@ -16,7 +16,7 @@ async function bootstrap() {
     }),
   );
 
-  // app.useGlobalFilters(new QueryFailedExceptionFilter());
+  app.useGlobalFilters(new QueryFailedExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Yam-Yum-App API Documentation')
