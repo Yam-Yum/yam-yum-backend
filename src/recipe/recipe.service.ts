@@ -61,7 +61,7 @@ export class RecipeService {
 
       // create video if exists
       if (video) {
-        const videoName = await this.filesService.uploadFileToS3(video);
+        const videoName = await this.filesService.uploadFileToS3(video[0]);
         // create Recipe video
         await this._createVideo(videoName, newRecipe.id);
       }
