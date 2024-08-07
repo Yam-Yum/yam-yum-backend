@@ -27,7 +27,7 @@ export class CategoryController {
   @UseInterceptors(FileInterceptor('image'))
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
-    @UploadedFile(createParseFilePipe('3MB', ['jpg', 'jpeg', 'png'])) image: Express.Multer.File,
+    @UploadedFile(createParseFilePipe('2MB', ['jpg', 'jpeg', 'png'])) image: Express.Multer.File,
   ) {
     return await this.categoryService.create(createCategoryDto, image);
   }

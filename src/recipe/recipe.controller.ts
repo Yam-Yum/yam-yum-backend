@@ -8,7 +8,6 @@ import {
   Delete,
   UseInterceptors,
   UploadedFiles,
-  BadRequestException,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -19,8 +18,7 @@ import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { RecipeQueryDto } from './dto/recipe-Query.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
-import { createParseFilePipe } from 'src/shared/pipes/file-parse.pipe';
-import { Validator } from 'class-validator';
+import { FileFieldsValidationInterceptor } from 'src/shared/interceptors/file-fields-validation/file-fields-validation.interceptor';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -36,42 +34,11 @@ export class RecipeController {
         maxCount: 1,
       },
     ]),
+    FileFieldsValidationInterceptor,
   )
   create(
     @Body() createRecipeDto: CreateRecipeDto,
-    @UploadedFiles({
-      transform: async (fileRequest: {
-        images: Express.Multer.File[];
-        video?: Express.Multer.File[];
-      }) => {
-        const imagesValidators = createParseFilePipe('2MB', ['jpg', 'jpeg', 'png']);
-        const videoValidators = createParseFilePipe('30MB', ['mp4', 'mkv']);
-        // Check if images are present and validate
-        if (!fileRequest.images || fileRequest.images.length === 0) {
-          throw new BadRequestException('Images are required.');
-        }
-
-        // Check if images are present and validate
-        for (const validator of imagesValidators.getValidators()) {
-          const valid = await validator.isValid(fileRequest.images);
-          if (!valid) {
-            throw new BadRequestException(validator.buildErrorMessage(fileRequest.images));
-          }
-        }
-
-        // Check if video is present and validate
-        if (fileRequest.video && fileRequest.video.length > 0) {
-          for (const validator of videoValidators.getValidators()) {
-            const valid = await validator.isValid(fileRequest.video);
-            if (!valid) {
-              throw new BadRequestException(validator.buildErrorMessage(fileRequest.video));
-            }
-          }
-        }
-
-        return fileRequest;
-      },
-    })
+    @UploadedFiles()
     files: { images: Array<Express.Multer.File>; video: Array<Express.Multer.File> },
   ) {
     return this.recipeService.create(createRecipeDto, files.images, files.video?.[0]);

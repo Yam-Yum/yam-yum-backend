@@ -45,7 +45,6 @@ export class RecipeService {
     });
 
     // create recipe Images
-    console.log('images: ', images);
     for (const image of images) {
       // Upload Recipe Image To S3
       const imageName = await this.filesService.uploadFileToS3(image);

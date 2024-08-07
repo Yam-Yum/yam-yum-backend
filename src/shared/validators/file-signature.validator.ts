@@ -9,13 +9,20 @@ export class FileSignatureValidator extends FileValidator {
     return 'validation failed (file type does not match file signature)';
   }
 
-  isValid(file: Express.Multer.File): boolean {
-    // validate file signature
-    const filesSignatures = magicBytes(file.buffer).map((file) => file.mime);
+  isValid(files: Array<Express.Multer.File> | Express.Multer.File): boolean {
+    if (!files) return false;
+    if (!Array.isArray(files)) files = [files];
 
-    if (!filesSignatures.length) return false;
+    let isMatch = false;
+    for (const file of files) {
+      // validate file signature
+      const filesSignatures = magicBytes(file.buffer).map((file) => file.mime);
+      if (!filesSignatures?.length) break;
 
-    const isMatch = filesSignatures.includes(file.mimetype);
+      isMatch = filesSignatures.includes(file.mimetype);
+      if (!isMatch) break;
+    }
+
     if (!isMatch) return false;
 
     return true;
