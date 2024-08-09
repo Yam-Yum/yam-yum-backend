@@ -12,7 +12,7 @@ export class CreateAddressDto {
   title?: string;
 
   @IsNumber()
-  longtude: number;
+  longitude: number;
 
   @IsNumber()
   latitude: number;
