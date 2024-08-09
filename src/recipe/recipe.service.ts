@@ -1,10 +1,4 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { FilesService } from 'src/files/files.service';
@@ -37,68 +31,65 @@ export class RecipeService {
     images: Array<Express.Multer.File>,
     video: Express.Multer.File,
   ) {
-    try {
-      // Create New Recipe
-      const newRecipe = await this.recipeRepository.save({
-        title: createRecipeDto.title,
-        description: createRecipeDto.description,
-        preparationTimeInMinutes: createRecipeDto.preparationTimeInMinutes,
-        size: createRecipeDto.size,
-        price: createRecipeDto.price,
+    // Create New Recipe
+    const newRecipe = await this.recipeRepository.save({
+      title: createRecipeDto.title,
+      description: createRecipeDto.description,
+      preparationTimeInMinutes: createRecipeDto.preparationTimeInMinutes,
+      size: createRecipeDto.size,
+      price: createRecipeDto.price,
+      category: {
+        id: createRecipeDto.categoryId,
+      },
+      author: { id: createRecipeDto.authorId },
+    });
+
+    // create recipe Images
+    for (const image of images) {
+      // Upload Recipe Image To S3
+      const imageName = await this.filesService.uploadFileToS3(image);
+      // Create Recipe Image
+      await this._createImage(imageName, newRecipe.id);
+    }
+
+    // create video if exists
+    if (video) {
+      const videoName = await this.filesService.uploadFileToS3(video);
+      // create Recipe video
+      await this._createVideo(videoName, newRecipe.id);
+    }
+
+    return await this.recipeRepository.find({
+      where: { id: newRecipe.id },
+      relations: {
+        category: true,
+        author: true,
+        video: true,
+        images: true,
+      },
+      select: {
+        images: {
+          id: true,
+          imageName: true,
+        },
+        video: {
+          id: true,
+          videoName: true,
+        },
         category: {
-          id: createRecipeDto.categoryId,
+          id: true,
+          name: true,
         },
-        author: { id: createRecipeDto.authorId },
-      });
-
-      // create recipe Images
-      for (const image of images) {
-        // Upload Recipe Image To S3
-        const imageName = await this.filesService.uploadFileToS3(image);
-        // Create Recipe Image
-        await this._createImage(imageName, newRecipe.id);
-      }
-
-      // create video if exists
-      if (video) {
-        const videoName = await this.filesService.uploadFileToS3(video[0]);
-        // create Recipe video
-        await this._createVideo(videoName, newRecipe.id);
-      }
-
-      return await this.recipeRepository.find({
-        where: { id: newRecipe.id },
-        relations: {
-          category: true,
-          author: true,
-          video: true,
-          images: true,
+        author: {
+          id: true,
         },
-        select: {
-          images: {
-            id: true,
-            imageName: true,
-          },
-          video: {
-            id: true,
-            videoName: true,
-          },
-          category: {
-            id: true,
-            name: true,
-          },
-          author: {
-            id: true,
-          },
-        },
-      });
-    } catch (error) {
-      // Checks if Recipe title already exists ? Throw Duplicate Error: Throw Server Error
-      if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
-        throw new ConflictException('Recipe title already exists');
-      } else {
-        throw new InternalServerErrorException('Failed to create Recipe');
-      }
+      },
+    });
+  }
+  catch(error) {
+    // Checks if Recipe title already exists ? Throw Duplicate Error: Throw Server Error
+    if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
+      throw new ConflictException('Recipe title already exists');
     }
   }
 

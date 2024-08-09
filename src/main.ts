@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import metadata from './metadata';
+import { QueryFailedExceptionFilter } from './shared/filters/query-failed-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  app.useGlobalFilters(new QueryFailedExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Yam-Yum-App API Documentation')

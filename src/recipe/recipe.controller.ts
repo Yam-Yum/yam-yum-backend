@@ -18,6 +18,7 @@ import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { RecipeQueryDto } from './dto/recipe-Query.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
+import { FileFieldsValidationInterceptor } from 'src/shared/interceptors/file-fields-validation/file-fields-validation.interceptor';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -33,12 +34,14 @@ export class RecipeController {
         maxCount: 1,
       },
     ]),
+    FileFieldsValidationInterceptor,
   )
   create(
     @Body() createRecipeDto: CreateRecipeDto,
-    @UploadedFiles() files: { images: Array<Express.Multer.File>; video: Express.Multer.File },
+    @UploadedFiles()
+    files: { images: Array<Express.Multer.File>; video: Array<Express.Multer.File> },
   ) {
-    return this.recipeService.create(createRecipeDto, files.images, files.video);
+    return this.recipeService.create(createRecipeDto, files.images, files.video?.[0]);
   }
 
   @Post('list')

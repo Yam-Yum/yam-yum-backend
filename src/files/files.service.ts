@@ -23,6 +23,7 @@ export class FilesService {
   constructor(private readonly configService: ConfigService) {}
 
   async uploadFileToS3(file: Express.Multer.File) {
+    console.log('file: ', file);
     //TODO: NOTE We can resize File here before sending it to AWS
 
     const randomFileName = this.randomFileName();
@@ -33,6 +34,7 @@ export class FilesService {
       Body: file.buffer,
       ContentType: file.mimetype,
     };
+    console.log('params: ', params);
 
     const command = new PutObjectCommand(params);
     await this.s3.send(command);
