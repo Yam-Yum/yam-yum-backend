@@ -16,8 +16,8 @@ import { Address } from 'src/users/entities/address.entity';
 import OrderConstants from 'src/order/utils/order-constants';
 import { cartProviderToken } from './providers/cart.provider';
 import { Cart } from './entities/cart.entity';
-import { FilesService } from 'src/files/files.service';
 import { UpdateCartQuantityDTO } from './dto/update-cart-quantity.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CartService {
@@ -30,7 +30,7 @@ export class CartService {
     private readonly _cartItemRepository: Repository<CartItem>,
     @Inject(addressProviderToken)
     private readonly _addressRepository: Repository<Address>,
-    private readonly _filesService: FilesService,
+    private readonly _configService: ConfigService,
   ) {}
 
   async updateCartQuantity(
@@ -146,11 +146,7 @@ export class CartService {
       throw new NotFoundException('Cart not found');
     }
 
-    // get signed url
-    const imageNames = cart.cartItems.map((item) =>
-      item.recipe.images.map((image) => image.imageName),
-    );
-    const images = await this._filesService.getMultipleFilesFromS3(imageNames.flat());
+    const imagesBaseUrl = this._configService.get<string>('STORAGE_BASE_URL');
 
     return {
       ...cart,
@@ -158,7 +154,7 @@ export class CartService {
         ...item,
         recipe: {
           ...item.recipe,
-          images,
+          images: item.recipe.images.map((image) => imagesBaseUrl + image.imageName),
         },
       })),
     };

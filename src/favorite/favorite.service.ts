@@ -13,7 +13,7 @@ import { userProviderToken } from 'src/users/providers/user.provider';
 import { User } from 'src/users/entities/user.entity';
 import { RecipeProviderToken } from 'src/recipe/providers/recipe.provider';
 import { Recipe } from 'src/recipe/entities/recipe.entity';
-import { FilesService } from 'src/files/files.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FavoriteService {
@@ -26,7 +26,7 @@ export class FavoriteService {
     private readonly _userRepository: Repository<User>,
     @Inject(RecipeProviderToken)
     private readonly _recipeRepository: Repository<Recipe>,
-    private readonly fileService: FilesService,
+    private readonly _configService: ConfigService,
   ) {}
 
   async toggleToFavorite(currentUserFavoriteId: string, recipeId: string) {
@@ -106,16 +106,14 @@ export class FavoriteService {
       recipes: [...favorite.favoriteItems.map((item) => item.recipe)],
     };
 
+    const imagesBaseUrl = this._configService.get<string>('STORAGE_BASE_URL');
     return {
       ...favoriteWithRecipes,
       recipes: await Promise.all(
         favoriteWithRecipes.recipes.map(async (recipe) => {
-          const images = await this.fileService.getMultipleFilesFromS3(
-            recipe.images.map((image) => image.imageName),
-          );
           return {
             ...recipe,
-            images,
+            images: recipe.images.map((image) => imagesBaseUrl + image.imageName),
           };
         }),
       ),

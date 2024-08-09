@@ -29,7 +29,7 @@ export class Address {
   title: string;
 
   @Column('double')
-  longtude: number;
+  longitude: number;
 
   @Column('double')
   latitude: number;

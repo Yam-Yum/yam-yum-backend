@@ -19,7 +19,7 @@ export class Category {
   name: string;
 
   @Column({ nullable: true })
-  image: string;
+  imageName: string;
 
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date;

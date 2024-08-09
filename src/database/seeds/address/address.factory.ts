@@ -7,7 +7,7 @@ export default setSeederFactory(Address, async (faker) => {
   const address = new Address();
 
   address.title = faker.string.alpha({ length: { min: 20, max: 100 } });
-  address.longtude = parseFloat(faker.location.longitude().toString());
+  address.longitude = parseFloat(faker.location.longitude().toString());
   address.latitude = parseFloat(faker.location.latitude().toString());
   address.country = faker.location.country();
   address.state = faker.location.state();

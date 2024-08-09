@@ -5,19 +5,24 @@ import dataSource from './database/data-source';
 import { FilesService } from './files/files.service';
 import { UserInJWTPayload } from './shared/interfaces/JWT-payload.interface';
 import { RecipeService } from './recipe/recipe.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppService {
+  private readonly storageBaseUrl = this.configService.get('STORAGE_BASE_URL');
+
   constructor(
     private readonly filesService: FilesService,
     private readonly recipeService: RecipeService,
+    private readonly configService: ConfigService,
   ) {}
 
   async getHomePage(currentUser?: UserInJWTPayload) {
     // custom banners from images randomly
-    const bannerImages = await this.filesService.getMultipleFilesFromS3(
-      new Array(5).fill('23ee015e69a5e8017a7acc5bde00681052e3db02032b74506faa59307d1110bd'),
-    );
+    const bannerImages = [
+      'https://yam-yum-storage.s3.eu-north-1.amazonaws.com/banner1.png',
+      'https://yam-yum-storage.s3.eu-north-1.amazonaws.com/banner2.png',
+    ];
 
     // Fetch all recipes with images
     const mostPopularRecipes = await dataSource
@@ -46,14 +51,18 @@ export class AppService {
     );
 
     const categories = await dataSource.getRepository(Category).find({
-      select: ['id', 'name', 'image'],
+      select: ['id', 'name', 'imageName'],
     });
 
     return {
       banners: bannerImages,
       mostPopular: transformedMostPopularRecipes,
       mostRatedRecipes: transformedMostRatedRecipes,
-      categories,
+      categories: categories.map((category) => ({
+        ...category,
+        imageName: undefined,
+        image: this.storageBaseUrl + category.imageName,
+      })),
     };
   }
 }

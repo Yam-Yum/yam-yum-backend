@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 import * as crypto from 'crypto';
 
@@ -11,6 +10,7 @@ export class FilesService {
   private readonly BUCKET_REGION = this.configService.get('AWS_S3_BUCKET_REGION');
   private readonly ACCESS_KEY = this.configService.get('AWS_S3_ACCESS_KEY');
   private readonly SECRET_ACCESS_KEY = this.configService.get('AWS_S3_SECRET_ACCESS_KEY');
+  // private readonly storageBaseUrl = this.configService.get('STORAGE_BASE_URL');
 
   private s3 = new S3Client({
     credentials: {
@@ -30,7 +30,7 @@ export class FilesService {
 
     const params = {
       Bucket: this.BUCKET_NAME,
-      Key: randomFileName,
+      Key: randomFileName + file.originalname,
       Body: file.buffer,
       ContentType: file.mimetype,
     };
@@ -39,28 +39,7 @@ export class FilesService {
     const command = new PutObjectCommand(params);
     await this.s3.send(command);
 
-    return randomFileName;
-  }
-
-  async getFileFromS3(FileName: string) {
-    if (!FileName) return null;
-    const params = {
-      Bucket: this.BUCKET_NAME,
-      Key: FileName,
-    };
-
-    const command = new GetObjectCommand(params);
-
-    const FileUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
-
-    return FileUrl;
-  }
-
-  async getMultipleFilesFromS3(FilesNames: Array<string>) {
-    const FilesUrls = await Promise.all(
-      FilesNames.map(async (FileName) => await this.getFileFromS3(FileName)),
-    );
-    return FilesUrls;
+    return randomFileName + file.originalname;
   }
 
   private randomFileName(bytes = 32) {

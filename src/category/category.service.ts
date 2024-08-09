@@ -1,5 +1,6 @@
 import { FilesService } from './../files/files.service';
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -11,6 +12,7 @@ import { categoryProviderToken } from './providers/category.provider';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CategoryService {
@@ -18,50 +20,43 @@ export class CategoryService {
     @Inject(categoryProviderToken)
     private readonly categoryRepository: Repository<Category>,
     private readonly filesService: FilesService,
+    private readonly _configService: ConfigService,
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto, image: Express.Multer.File) {
-    try {
-      const { name } = createCategoryDto;
+    const { name } = createCategoryDto;
 
-      // Upload Category Image To S3
-      const categoryImageNameOnServer = await this.filesService.uploadFileToS3(image);
+    const categoryExists = await this.categoryRepository.findOneBy({ name });
 
-      // Create New Category
-      return await this.categoryRepository.save({
-        name,
-        image: categoryImageNameOnServer || null,
-      });
-    } catch (error) {
-      // Checks if category name already exists ? Throw Duplicate Error: Throw Server Error
-      if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
-        throw new ConflictException('Category name already exists');
-      } else {
-        throw new InternalServerErrorException('Failed to create category');
-      }
-    }
+    if (categoryExists) throw new BadRequestException('Category Name already exists');
+
+    // Upload Category Image To S3
+    const categoryImageNameOnServer = await this.filesService.uploadFileToS3(image);
+
+    // Create New Category
+    return await this.categoryRepository.save({
+      name,
+      imageName: categoryImageNameOnServer || null,
+    });
   }
 
   async getList() {
-    try {
-      let allCategories = await this.categoryRepository.find();
+    let allCategories = await this.categoryRepository.find();
 
-      // Get Image from S3
-      allCategories =
-        allCategories.length > 0
-          ? await Promise.all(
-              allCategories.map(async (category) => {
-                if (category.image)
-                  category.image = await this.filesService.getFileFromS3(category.image);
-                delete category.deletedAt;
-                return category;
-              }),
-            )
-          : [];
+    const imagesBaseUrl = this._configService.get<string>('STORAGE_BASE_URL');
 
-      return allCategories;
-    } catch (error) {}
-    throw new InternalServerErrorException('Failed to retrieve categories');
+    // Get Image from S3
+    allCategories =
+      allCategories.length > 0
+        ? await Promise.all(
+            allCategories.map(async (category) => {
+              delete category.deletedAt;
+              return { ...category, image: imagesBaseUrl + category.imageName };
+            }),
+          )
+        : [];
+
+    return allCategories;
   }
 
   async get(id: string) {
@@ -70,11 +65,10 @@ export class CategoryService {
 
       if (!category) throw new NotFoundException('Category not found');
 
-      // Get Image from S3
-      if (category.image) category.image = await this.filesService.getFileFromS3(category.image);
+      const imagesBaseUrl = this._configService.get<string>('STORAGE_BASE_URL');
 
       delete category.deletedAt;
-      return category;
+      return { ...category, image: imagesBaseUrl + category.imageName };
     } catch (error) {
       throw error;
     }
@@ -90,7 +84,7 @@ export class CategoryService {
 
         updateCategoryResult = await this.categoryRepository.update(id, {
           ...updateCategoryDto,
-          image: categoryImageNameOnServer || null,
+          imageName: categoryImageNameOnServer || null,
         });
       } else {
         updateCategoryResult = await this.categoryRepository.update(id, updateCategoryDto);

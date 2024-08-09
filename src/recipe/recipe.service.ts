@@ -13,6 +13,7 @@ import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
 import { CartItem } from 'src/cart/entities/cartItem.entity';
 import dataSource from 'src/database/data-source';
 import { FavoriteItem } from 'src/favorite/entities/favorite-item.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RecipeService {
@@ -24,6 +25,7 @@ export class RecipeService {
     @Inject(RecipeVideoProviderToken)
     private readonly recipeVideoRepository: Repository<RecipeVideo>,
     private readonly filesService: FilesService,
+    private readonly _configService: ConfigService,
   ) {}
 
   async create(
@@ -31,6 +33,11 @@ export class RecipeService {
     images: Array<Express.Multer.File>,
     video: Express.Multer.File,
   ) {
+    // Validate Recipe Name
+    const { title } = createRecipeDto;
+    const recipeExists = await this.recipeRepository.findOneBy({ title });
+    if (recipeExists) throw new ConflictException('Recipe Name already exists');
+
     // Create New Recipe
     const newRecipe = await this.recipeRepository.save({
       title: createRecipeDto.title,
@@ -85,12 +92,6 @@ export class RecipeService {
         },
       },
     });
-  }
-  catch(error) {
-    // Checks if Recipe title already exists ? Throw Duplicate Error: Throw Server Error
-    if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
-      throw new ConflictException('Recipe title already exists');
-    }
   }
 
   async getList(
@@ -255,6 +256,7 @@ export class RecipeService {
 
   // public
   async patchQuantityFavoriteToRecipes(currentUser: UserInJWTPayload, recipes: Partial<Recipe>[]) {
+    const imagesBaseUrl = this._configService.get<string>('STORAGE_BASE_URL');
     // Fetch user's cart items and favorite recipes
     let cartItems = [];
     let favoriteRecipes = [];
@@ -273,22 +275,15 @@ export class RecipeService {
     const transformRecipes = async (recipes: Partial<Recipe>[]) => {
       return await Promise.all(
         recipes.map(async (recipe) => {
-          let videoUrl;
-          if (recipe.video) {
-            videoUrl = await this.filesService.getFileFromS3(recipe.video.videoName);
-          }
-
-          const images = await this.filesService.getMultipleFilesFromS3(
-            recipe.images.map((image) => image.imageName),
-          );
-
           const cartItem = cartItems.find((item) => item.recipe?.id === recipe.id);
           const isFavorite = favoriteRecipes.some((favorite) => favorite.recipe?.id === recipe.id);
 
           return {
             ...recipe,
-            video: videoUrl || null,
-            images,
+            video: recipe.video ? `${imagesBaseUrl}${recipe.video.videoName}` : null,
+            images: recipe.images
+              ? recipe.images.map((image) => `${imagesBaseUrl}${image.imageName}`)
+              : null,
             cartQuantity: currentUser ? (cartItem ? cartItem.quantity : 0) : null,
             isFavorite: currentUser ? (isFavorite ? true : false) : null,
           };

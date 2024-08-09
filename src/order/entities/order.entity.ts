@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -71,6 +72,9 @@ export class Order {
   address: Relation<Address>;
 
   @ManyToMany(() => Recipe, (recipe) => recipe.orders)
+  @JoinTable({
+    name: 'orders_recipes',
+  })
   recipes: Relation<Recipe[]>;
 
   @ManyToOne(() => User, (user) => user.orders, { nullable: true })

@@ -18,7 +18,7 @@ import { AddCommentDto } from './dto/add-comment.dto';
 import { CommentProviderToken } from './providers/comment.provider';
 import { Comment } from './entities/comment.entity';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { FilesService } from 'src/files/files.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ReelService {
@@ -34,10 +34,11 @@ export class ReelService {
     private readonly _likeRepository: Repository<Like>,
     @Inject(CommentProviderToken)
     private readonly _commentRepository: Repository<Comment>,
-    private readonly _fileService: FilesService,
+    private readonly _configService: ConfigService,
   ) {}
 
   async getReels(pageNumber: number = 1, pageSize: number = 10) {
+    const storageBaseUrl = this._configService.get<string>('STORAGE_BASE_URL');
     try {
       const recipesVideo = await this._recipeVideoRepository.find({
         select: {
@@ -45,8 +46,23 @@ export class ReelService {
           videoName: true,
           recipe: {
             id: true,
+            title: true,
+            author: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+            },
           },
           likesCount: true,
+          likes: {
+            id: true,
+            user: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
           comments: {
             id: true,
             content: true,
@@ -58,8 +74,12 @@ export class ReelService {
           },
         },
         relations: {
-          recipe: true,
-          likes: true,
+          recipe: {
+            author: true,
+          },
+          likes: {
+            user: true,
+          },
           comments: {
             user: true,
           },
@@ -73,11 +93,9 @@ export class ReelService {
         data: await Promise.all(
           recipesVideo.map(async (recipeVideo) => {
             return {
-              id: recipeVideo.id,
-              video: await this._fileService.getFileFromS3(recipeVideo.videoName),
-              recipeId: recipeVideo.recipe.id,
-              likesCount: recipeVideo.likesCount,
-              comments: recipeVideo.comments,
+              ...recipeVideo,
+              videoName: undefined,
+              video: storageBaseUrl + recipeVideo.videoName,
             };
           }),
         ),

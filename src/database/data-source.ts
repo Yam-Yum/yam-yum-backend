@@ -1,6 +1,7 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { SeederOptions } from 'typeorm-extension';
+import { runSeeder, SeederOptions } from 'typeorm-extension';
+import UserSeeder from './seeds/user/user.seeder';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions & SeederOptions = {
@@ -29,5 +30,10 @@ dataSource
   .catch((err) => {
     console.error('Error during Data Source initialization', err);
   });
+
+// run seeds
+// (async () => {
+//   await runSeeder(dataSource, UserSeeder);
+// })();
 
 export default dataSource;
