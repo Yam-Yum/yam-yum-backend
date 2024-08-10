@@ -1,14 +1,9 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { addressProviderToken } from './providers/address.provider';
 import { Address } from './entities/address.entity';
-import { In, QueryFailedError, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { userProviderToken } from './providers/user.provider';
 import { User } from './entities/user.entity';
@@ -26,6 +21,7 @@ import { Favorite } from 'src/favorite/entities/favorite.entity';
 import { FavoriteItemProviderToken } from 'src/favorite/providers/favorite-item.provider';
 import { FavoriteProviderToken } from 'src/favorite/providers/favorite.provider';
 import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
+import { GetAddressesByIdsDTO } from './dto/get-addresses-by-ids.dto';
 
 @Injectable()
 export class UsersService {
@@ -71,23 +67,35 @@ export class UsersService {
   }
 
   // Address Services
-  async getAddresses(userId: string) {
-    try {
-      return await this._addressRepository.findAndCountBy({ userId });
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+  async getMyAddresses(userId: string) {
+    const Addresses = await this._addressRepository.findBy({ userId });
+
+    return {
+      total: Addresses.length,
+      addresses: Addresses,
+    };
   }
 
-  async saveAddress(createAddressDto: CreateAddressDto) {
-    try {
-      return await this._addressRepository.save({ ...createAddressDto });
-    } catch (error) {
-      if (error instanceof QueryFailedError && error.message.includes('Duplicate entry')) {
-        throw new ConflictException('Address already exists');
+  async saveAddress(createAddressDto: CreateAddressDto, currentUserId?: string) {
+    let user: User;
+    if (currentUserId) {
+      user = await this._userRepository.findOneBy({ id: currentUserId });
+      if (!user) {
+        throw new UnauthorizedException('User not found');
       }
-      throw error;
+      return await this._addressRepository.save({
+        ...createAddressDto,
+        userId: user.id,
+      });
     }
+
+    return await this._addressRepository.save(createAddressDto);
+  }
+
+  async getAddressesByIds(getAddressesByIdsDTO: GetAddressesByIdsDTO) {
+    return await this._addressRepository.findBy({
+      id: In(getAddressesByIdsDTO.addressIds),
+    });
   }
 
   async getMe(loggedInUserId: string) {

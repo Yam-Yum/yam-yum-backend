@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,6 +8,7 @@ import { CreateAddressDto } from './dto/create-address.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { AssignToMeDto } from './dto/assign-to-me-.dto';
 import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
+import { GetAddressesByIdsDTO } from './dto/get-addresses-by-ids.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -15,15 +16,24 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   // Address Endpoints
-  @Get('addresses')
-  async getAddresses(@Query('userId') userId: string) {
-    return await this.usersService.getAddresses(userId);
+  @Get('address/mine')
+  async getAddresses(@GetUser('id') currentUserId: string) {
+    return await this.usersService.getMyAddresses(currentUserId);
   }
 
   @SkipAuth()
   @Post('addresses')
-  async saveAddress(@Body() createAddressDto: CreateAddressDto) {
-    return await this.usersService.saveAddress(createAddressDto);
+  async saveAddress(
+    @Body() createAddressDto: CreateAddressDto,
+    @GetUser() currentUser?: UserInJWTPayload,
+  ) {
+    return await this.usersService.saveAddress(createAddressDto, currentUser?.id);
+  }
+
+  @SkipAuth()
+  @Post('get-addresses')
+  async getAddressesByIds(@Body() getAddressesByIdsDTO: GetAddressesByIdsDTO) {
+    return await this.usersService.getAddressesByIds(getAddressesByIdsDTO);
   }
 
   // Get logged in  user info (profile endpoint)

@@ -47,6 +47,7 @@ export class RecipeController {
   @Post('list')
   @SkipAuth()
   getList(@Body() body: RecipeQueryDto, @GetUser() user: UserInJWTPayload) {
+    console.log('user: ', user);
     console.log('RecipeQueryDto: ', body);
     const {
       searchKeyword,
