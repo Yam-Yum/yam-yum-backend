@@ -164,7 +164,7 @@ export class OrderService {
     const orderTotal = this._calculateOrderTotal(orderSubTotal, shippingFee, systemDiscount);
 
     const uniqueOrderNumber = generateRandomOrderNumber();
-    await this._orderRepository.save({
+    const order = await this._orderRepository.save({
       orderNumber: uniqueOrderNumber,
       fullName: fullName,
       phoneNumber: phoneNumber,
@@ -189,7 +189,10 @@ export class OrderService {
       }
     }
 
-    return { orderNumber: uniqueOrderNumber };
+    return {
+      orderId: order.id,
+      orderNumber: uniqueOrderNumber,
+    };
   }
 
   async getGuestOrders(orderGuestDto: orderGuestDto) {
