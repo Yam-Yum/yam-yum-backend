@@ -8,6 +8,7 @@ import { PlaceOrderDto } from './dto/place-order.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { CheckoutDto } from './dto/checkout.dto';
 import { orderGuestDto } from './dto/order-guest.dto';
+import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
 
 @ApiTags('order')
 @Controller('order')
@@ -16,8 +17,8 @@ export class OrderController {
 
   @SkipAuth()
   @Post('place')
-  async placeOrder(@Body() placeOrderDto: PlaceOrderDto) {
-    return await this.orderService.placeOrder(placeOrderDto);
+  async placeOrder(@Body() placeOrderDto: PlaceOrderDto, @GetUser() user: UserInJWTPayload) {
+    return await this.orderService.placeOrder(placeOrderDto, user?.id);
   }
 
   @SkipAuth()

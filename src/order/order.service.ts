@@ -123,73 +123,73 @@ export class OrderService {
     };
   }
 
-  async placeOrder(placeOrderDto: PlaceOrderDto) {
-    try {
-      const { fullName, phoneNumber, addressId, recipes, userId, paymentMethod } = placeOrderDto;
-      console.log(placeOrderDto);
+  async placeOrder(placeOrderDto: PlaceOrderDto, userId?: string) {
+    const { fullName, phoneNumber, addressId, recipes, paymentMethod } = placeOrderDto;
+    console.log(placeOrderDto);
 
-      const addressExists = await this._addressRepository.findOneBy({ id: addressId });
+    const addressExists = await this._addressRepository.findOneBy({ id: addressId });
 
-      let userExists = null;
-      if (userId) {
-        userExists = await this._userRepository.findOne({ where: { id: userId } });
-        if (!userExists) {
-          throw new NotFoundException('User does not exist');
-        }
-      }
-      const recipeIds = recipes.map((recipe) => recipe.recipeId);
-      const recipeExists = await this._recipeRepository.find({
-        where: {
-          id: In(recipeIds),
-        },
-      });
-
-      if (recipeExists.length !== recipeIds.length) {
-        throw new NotFoundException('Some RecipeIds does not exist');
-      }
-
-      const orderRecipesInfo = recipeExists.map((recipe) => {
-        return {
-          recipe: recipe,
-          quantity: recipes.find((r) => r.recipeId === recipe.id).quantity,
-        };
-      });
-
-      const orderSubTotal = this._calculateOrderSubTotal(orderRecipesInfo);
-      const shippingFee = OrderConstants.SHIPPING_HANDLING_FEE;
-      const systemDiscount = OrderConstants.SYSTEM_DISCOUNT;
-      const orderTotal = this._calculateOrderTotal(orderSubTotal, shippingFee, systemDiscount);
-
-      const uniqueOrderNumber = generateRandomOrderNumber();
-      await this._orderRepository.save({
-        orderNumber: uniqueOrderNumber,
-        fullName: fullName,
-        phoneNumber: phoneNumber,
-        paymentMethod: paymentMethod,
-        status: OrderStatus.CREATED,
-        user: userExists,
-        address: addressExists,
-        recipes: recipeExists,
-        itemsSubtotal: orderSubTotal,
-        shippingFee: shippingFee,
-        discount: systemDiscount,
-        orderTotal: orderTotal,
-      });
-
-      for (const recipeId of recipeIds) {
-        const recipe = await this._recipeRepository.findOne({
-          where: { id: recipeId },
-        });
-        if (recipe) {
-          recipe.orderCount++;
-          await this._recipeRepository.save(recipe);
-        }
-      }
-
-      return new Response('Order Placed', [{ orderNumber: uniqueOrderNumber }]).created();
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+    if (!addressExists) {
+      throw new NotFoundException('Address does not exist');
     }
+
+    let userExists = null;
+    if (userId) {
+      userExists = await this._userRepository.findOne({ where: { id: userId } });
+      if (!userExists) {
+        throw new NotFoundException('User does not exist');
+      }
+    }
+    const recipeIds = recipes.map((recipe) => recipe.recipeId);
+    const recipeExists = await this._recipeRepository.find({
+      where: {
+        id: In(recipeIds),
+      },
+    });
+
+    if (recipeExists.length !== recipeIds.length) {
+      throw new NotFoundException('Some RecipeIds does not exist');
+    }
+
+    const orderRecipesInfo = recipeExists.map((recipe) => {
+      return {
+        recipe: recipe,
+        quantity: recipes.find((r) => r.recipeId === recipe.id).quantity,
+      };
+    });
+
+    const orderSubTotal = this._calculateOrderSubTotal(orderRecipesInfo);
+    const shippingFee = OrderConstants.SHIPPING_HANDLING_FEE;
+    const systemDiscount = OrderConstants.SYSTEM_DISCOUNT;
+    const orderTotal = this._calculateOrderTotal(orderSubTotal, shippingFee, systemDiscount);
+
+    const uniqueOrderNumber = generateRandomOrderNumber();
+    await this._orderRepository.save({
+      orderNumber: uniqueOrderNumber,
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      paymentMethod: paymentMethod,
+      status: OrderStatus.CREATED,
+      user: userExists,
+      address: addressExists,
+      recipes: recipeExists,
+      itemsSubtotal: orderSubTotal,
+      shippingFee: shippingFee,
+      discount: systemDiscount,
+      orderTotal: orderTotal,
+    });
+
+    for (const recipeId of recipeIds) {
+      const recipe = await this._recipeRepository.findOne({
+        where: { id: recipeId },
+      });
+      if (recipe) {
+        recipe.orderCount++;
+        await this._recipeRepository.save(recipe);
+      }
+    }
+
+    return { orderNumber: uniqueOrderNumber };
   }
 
   async getGuestOrders(orderGuestDto: orderGuestDto) {

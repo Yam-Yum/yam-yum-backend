@@ -74,6 +74,14 @@ export class Order {
   @ManyToMany(() => Recipe, (recipe) => recipe.orders)
   @JoinTable({
     name: 'orders_recipes',
+    joinColumn: {
+      name: 'recipeId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'orderId',
+      referencedColumnName: 'id',
+    },
   })
   recipes: Relation<Recipe[]>;
 

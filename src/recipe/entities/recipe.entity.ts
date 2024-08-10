@@ -94,7 +94,6 @@ export class Recipe {
   cartItems: Relation<CartItem>[];
 
   @ManyToMany(() => Order, (order) => order.recipes)
-  @JoinTable()
   orders: Relation<Order[]>;
 
   @OneToMany(() => Review, (review) => review.recipe)

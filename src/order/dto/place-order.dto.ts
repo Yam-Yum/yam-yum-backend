@@ -1,14 +1,4 @@
-import {
-  IsArray,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-  IsUUID,
-  Min,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsEnum, IsPhoneNumber, IsString, IsUUID, ValidateNested } from 'class-validator';
 import { PaymentMethod } from '../entities/order.entity';
 import { Type } from 'class-transformer';
 import { RecipeDTO } from './recipe.dto';
@@ -28,10 +18,6 @@ export class PlaceOrderDto {
   @ValidateNested({ each: true })
   @Type(() => RecipeDTO)
   recipes: RecipeDTO[];
-
-  @IsUUID()
-  @IsOptional()
-  userId: string;
 
   @IsEnum(PaymentMethod)
   paymentMethod: string;
