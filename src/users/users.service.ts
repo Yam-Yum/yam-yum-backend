@@ -123,12 +123,13 @@ export class UsersService {
       },
     });
 
+    console.log('🚀 ~ UsersService ~ getMe ~ loggedInUserInfo:', loggedInUserInfo);
     return {
       ...loggedInUserInfo,
       cart: undefined,
       favorite: undefined,
-      cartId: loggedInUserInfo.cart.id,
-      favoriteId: loggedInUserInfo.favorite.id,
+      cartId: loggedInUserInfo.cart?.id,
+      favoriteId: loggedInUserInfo.favorite?.id,
     };
   }
 
