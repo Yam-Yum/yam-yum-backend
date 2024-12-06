@@ -107,66 +107,47 @@ export class RecipeService {
     sortByDate?: 'ASC' | 'DESC',
     sortByPrice?: 'ASC' | 'DESC',
     pageNumber: number = 1,
-    pagesize: number = 10,
-
+    pageSize: number = 10,
     user?: UserInJWTPayload,
   ) {
-    console.log('recipeIds: ', recipeIds);
     const query = this.recipeRepository
       .createQueryBuilder('recipe')
       .leftJoinAndSelect('recipe.images', 'images')
       .leftJoinAndSelect('recipe.video', 'video');
 
-    // Filtering
-    if (status) {
-      query.andWhere('recipe.status = :status', { status });
-    }
-    if (size) {
-      query.andWhere('recipe.size = :size', { size });
-    }
-    if (categoryId) {
-      query.andWhere('recipe.categoryId = :categoryId', { categoryId });
-    }
-    if (authorId) {
-      query.andWhere('recipe.authorId = :authorId', { authorId });
-    }
-    if (rateGreaterThan) {
-      query.andWhere('recipe.rate >= :rateGreaterThan', { rateGreaterThan });
-    }
-    if (rateLessThan) {
-      query.andWhere('recipe.rate <= :rateLessThan', { rateLessThan });
-    }
-    if (recipeIds) {
-      query.andWhere('recipe.id IN (:...recipeIds)', { recipeIds });
-    }
+    if (status) query.andWhere('recipe.status = :status', { status });
+    if (size) query.andWhere('recipe.size = :size', { size });
+    if (categoryId) query.andWhere('recipe.categoryId = :categoryId', { categoryId });
+    if (authorId) query.andWhere('recipe.authorId = :authorId', { authorId });
+    if (rateGreaterThan) query.andWhere('recipe.rate >= :rateGreaterThan', { rateGreaterThan });
+    if (rateLessThan) query.andWhere('recipe.rate <= :rateLessThan', { rateLessThan });
+    if (recipeIds) query.andWhere('recipe.id IN (:...recipeIds)', { recipeIds });
 
-    // Searching
     if (searchKeyword) {
-      query.andWhere('recipe.title LIKE :keyword OR recipe.description LIKE :keyword', {
+      query.andWhere('(recipe.title LIKE :keyword OR recipe.description LIKE :keyword)', {
         keyword: `%${searchKeyword}%`,
       });
     }
 
-    // Sorting
-    if (sortByRate) {
-      query.addOrderBy('recipe.rate', sortByRate);
-    }
-    if (sortByDate) {
-      query.addOrderBy('recipe.createdAt', sortByDate);
-    }
-    if (sortByPrice) {
-      query.addOrderBy('recipe.price', sortByPrice);
-    }
+    if (sortByRate) query.addOrderBy('recipe.rate', sortByRate);
+    if (sortByDate) query.addOrderBy('recipe.createdAt', sortByDate);
+    if (sortByPrice) query.addOrderBy('recipe.price', sortByPrice);
 
-    // Pagination
-    query.skip((pageNumber - 1) * pagesize).take(pagesize);
+    const total = await query.getCount();
+    const recipes = await query
+      .skip((pageNumber - 1) * pageSize)
+      .take(pageSize)
+      .getMany();
 
-    const [recipes, total] = await query.getManyAndCount();
-
-    // Transform recipes to include videoUrl and imageUrls
     const transformedRecipes = await this.patchQuantityFavoriteToRecipes(user, recipes);
+
     return {
-      totalCount: total,
+      metaData: {
+        total,
+        pageNumber,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      },
       data: transformedRecipes,
     };
   }

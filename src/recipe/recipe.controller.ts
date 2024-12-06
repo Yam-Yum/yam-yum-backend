@@ -78,7 +78,6 @@ export class RecipeController {
       sortByPrice,
       pageNumber,
       pageSize,
-
       user,
     );
   }
