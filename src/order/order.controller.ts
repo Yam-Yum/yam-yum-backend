@@ -2,13 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { CheckoutDto } from './dto/checkout.dto';
 import { orderGuestDto } from './dto/order-guest.dto';
 import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
+import { MyOrdersResponseDto } from './dto/my-orders.dto';
 
 @ApiTags('order')
 @Controller('order')
@@ -33,6 +34,11 @@ export class OrderController {
     return this.orderService.getGuestOrders(orderGuestDto);
   }
 
+  @Get('mine')
+  @ApiResponse({ type: MyOrdersResponseDto })
+  async getMyOrders(@GetUser() user: UserInJWTPayload): Promise<MyOrdersResponseDto> {
+    return this.orderService.getMyOrders(user.id);
+  }
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);

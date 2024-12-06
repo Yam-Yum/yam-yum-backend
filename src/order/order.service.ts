@@ -21,6 +21,8 @@ import { PlaceOrderDto } from './dto/place-order.dto';
 import OrderConstants from './utils/order-constants';
 import { CheckoutDto } from './dto/checkout.dto';
 import { orderGuestDto } from './dto/order-guest.dto';
+import { MyOrdersResponseDto } from './dto/my-orders.dto';
+import { ConfigService } from '@nestjs/config';
 
 type RecipeType = { recipe: Recipe; quantity: number };
 @Injectable()
@@ -35,7 +37,12 @@ export class OrderService {
     private readonly _addressRepository: Repository<Address>,
     @Inject(userProviderToken)
     private readonly _userRepository: Repository<User>,
+    private readonly _configService: ConfigService,
   ) {}
+
+  private _getBaseImageUrl() {
+    return this._configService.get('STORAGE_BASE_URL');
+  }
 
   async create(createOrderDto: CreateOrderDto) {
     try {
@@ -114,7 +121,7 @@ export class OrderService {
       totalPrice += recipe.price;
     }
 
-    let responseRecipies = {};
+    const responseRecipies = {};
     for (const r of recipes) {
       responseRecipies[r.recipeId] = {
         quantity: r.quantity,
@@ -223,7 +230,7 @@ export class OrderService {
       ...order,
       recipes: order.recipes.map((recipe) => ({
         ...recipe,
-        images: recipe.images.map((image) => image.imageName),
+        images: recipe.images.map((image) => this._getBaseImageUrl() + image.imageName),
       })),
     }));
 
@@ -231,6 +238,55 @@ export class OrderService {
       totalCount: total,
       orders: ordersWithImages,
     };
+  }
+
+  async getMyOrders(userId: string): Promise<MyOrdersResponseDto> {
+    try {
+      const query = this._orderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.recipes', 'recipe')
+        .leftJoinAndSelect('recipe.images', 'image')
+        .where('order.user.id = :userId', { userId })
+        .orderBy('order.createdAt', 'DESC');
+
+      const [orders, total] = await query.getManyAndCount();
+
+      const ordersWithImages = orders.map((order) => ({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        fullName: order.fullName,
+        phoneNumber: order.phoneNumber,
+        status: order.status,
+        itemsSubtotal: order.itemsSubtotal,
+        shippingFee: order.shippingFee,
+        discount: order.discount,
+        orderTotal: order.orderTotal,
+        paymentMethod: order.paymentMethod,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        recipes: order.recipes.map((recipe) => ({
+          id: recipe.id,
+          title: recipe.title,
+          description: recipe.description,
+          preparationTimeInMinutes: recipe.preparationTimeInMinutes,
+          size: recipe.size,
+          price: recipe.price,
+          status: recipe.status,
+          rate: recipe.rate,
+          orderCount: recipe.orderCount,
+          createdAt: recipe.createdAt,
+          updatedAt: recipe.updatedAt,
+          images: recipe.images.map((image) => this._getBaseImageUrl() + image.imageName),
+        })),
+      }));
+
+      return {
+        totalCount: total,
+        orders: ordersWithImages,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to fetch user orders');
+    }
   }
 
   findAll() {
