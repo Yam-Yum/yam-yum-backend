@@ -90,6 +90,7 @@ export class OrderService {
   async checkout(checkoutDto: CheckoutDto) {
     // check if recipeIds exists
     const { recipes, userId } = checkoutDto;
+
     const recipeIds = recipes.map((recipe) => recipe.recipeId);
     // if one recipe isn't found, throw error
     const recipeExists = await this._recipeRepository.find({
@@ -107,10 +108,19 @@ export class OrderService {
 
     // calculate total price
     let totalPrice = 0;
+    console.log(recipeExists);
+
     for (const recipe of recipeExists) {
       totalPrice += recipe.price;
     }
 
+    let responseRecipies = {};
+    for (const r of recipes) {
+      responseRecipies[r.recipeId] = {
+        quantity: r.quantity,
+        ...recipeExists.find((recipe) => recipe.id === r.recipeId),
+      };
+    }
     // calculate total net price
     const totalNetPrice = totalPrice - systemDiscount + shippingFee;
 
@@ -119,7 +129,7 @@ export class OrderService {
       shippingFee: shippingFee,
       systemDiscount: systemDiscount,
       totalNetPrice,
-      recipes: recipeExists,
+      recipes: responseRecipies,
     };
   }
 
