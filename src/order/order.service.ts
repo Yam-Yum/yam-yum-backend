@@ -23,12 +23,13 @@ import { CheckoutDto } from './dto/checkout.dto';
 import { orderGuestDto } from './dto/order-guest.dto';
 import { MyOrdersResponseDto } from './dto/my-orders.dto';
 import { ConfigService } from '@nestjs/config';
+import { CartService } from 'src/cart/cart.service';
 
 type RecipeType = { recipe: Recipe; quantity: number };
 @Injectable()
 export class OrderService {
   constructor(
-    // private readonly _cartService: CartService,
+    private readonly _cartService: CartService,
     @Inject(RecipeProviderToken)
     private readonly _recipeRepository: Repository<Recipe>,
     @Inject(orderProviderToken)
@@ -206,11 +207,16 @@ export class OrderService {
       }
     }
 
+    if (userId) {
+      await this._cartService.clearMyCart(userId);
+    }
+
     return {
       orderId: order.id,
       orderNumber: uniqueOrderNumber,
     };
   }
+
   async getGuestOrders(orderGuestDto: orderGuestDto) {
     const { orderIds } = orderGuestDto;
     const query = this._orderRepository

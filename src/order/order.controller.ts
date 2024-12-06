@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
@@ -13,6 +13,7 @@ import { MyOrdersResponseDto } from './dto/my-orders.dto';
 
 @ApiTags('order')
 @Controller('order')
+@ApiBearerAuth('JWT-auth')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 

@@ -21,10 +21,22 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Yam-Yum-App API Documentation')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth', // This name here is important for matching up with @ApiBearerAuth() in your controllers
+    )
     .build();
 
-  await SwaggerModule.loadPluginMetadata(metadata); // <-- here
+  await SwaggerModule.loadPluginMetadata(metadata);
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('swagger', app, document);
 
   await app.listen(3000);

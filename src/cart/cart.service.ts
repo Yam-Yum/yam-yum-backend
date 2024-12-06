@@ -33,7 +33,7 @@ export class CartService {
     private readonly _configService: ConfigService,
   ) {}
 
-  async updateCartQuantity(
+  public async updateCartQuantity(
     updateCartQuantityDTO: UpdateCartQuantityDTO,
     loggedInUserCartId: string,
   ) {
@@ -83,7 +83,7 @@ export class CartService {
     return { cartItemId: createdCartItem.id, quantity: createdCartItem.quantity };
   }
 
-  async cartCheckout(loggedInUser: any) {
+  public async cartCheckout(loggedInUser: any) {
     try {
       const { loggedInUserId, loggedInUserCartId } = loggedInUser;
 
@@ -119,7 +119,7 @@ export class CartService {
     }
   }
 
-  async getMyCart(loggedInUserId: string) {
+  public async getMyCart(loggedInUserId: string) {
     const cart = await this._cartRepository.findOne({
       where: { id: loggedInUserId },
       relations: { cartItems: { recipe: { images: true } } },
@@ -169,6 +169,10 @@ export class CartService {
 
   public calculateCartTotal(cartSubTotal: number, shippingFee: number, discount: number) {
     return cartSubTotal + shippingFee - discount;
+  }
+
+  public async clearMyCart(loggedInUserId: string) {
+    await this._cartItemRepository.delete({ cart: { id: loggedInUserId } });
   }
 
   findAll() {
