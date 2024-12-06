@@ -2,11 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CartService } from './cart.service';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateCartQuantityDTO } from './dto/update-cart-quantity.dto';
 
 @ApiTags('Cart')
 @Controller('cart')
+@ApiBearerAuth('JWT-auth')
 export class CartController {
   constructor(private readonly _cartService: CartService) {}
 

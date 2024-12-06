@@ -172,7 +172,7 @@ export class CartService {
   }
 
   public async clearMyCart(loggedInUserId: string) {
-    await this._cartItemRepository.delete({ cart: { id: loggedInUserId } });
+    await this._cartItemRepository.delete({ cart: { user: { id: loggedInUserId } } });
   }
 
   findAll() {
