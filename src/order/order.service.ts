@@ -204,12 +204,12 @@ export class OrderService {
       orderNumber: uniqueOrderNumber,
     };
   }
-
   async getGuestOrders(orderGuestDto: orderGuestDto) {
     const { orderIds } = orderGuestDto;
     const query = this._orderRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.recipes', 'recipe')
+      .leftJoinAndSelect('recipe.images', 'image')
       .where('order.userId IS NULL');
 
     if (orderIds) {
@@ -217,10 +217,19 @@ export class OrderService {
     }
 
     const [orders, total] = await query.getManyAndCount();
+    console.log('🚀 ~ file: order.service.ts:220 ~ orders:', orders);
+
+    const ordersWithImages = orders.map((order) => ({
+      ...order,
+      recipes: order.recipes.map((recipe) => ({
+        ...recipe,
+        images: recipe.images.map((image) => image.imageName),
+      })),
+    }));
 
     return {
       totalCount: total,
-      orders: orders,
+      orders: ordersWithImages,
     };
   }
 
