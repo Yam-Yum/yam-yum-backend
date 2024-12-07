@@ -17,6 +17,7 @@ import { FilesService } from './files/files.service';
 import { ReelModule } from './reel/reel.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { ChiefModule } from './chief/chief.module';
+import { BusinessProfileRequestModule } from './business-profile-request/business-profile-request.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ChiefModule } from './chief/chief.module';
     ReelModule,
     FavoriteModule,
     ChiefModule,
+    BusinessProfileRequestModule,
   ],
   controllers: [AppController],
   providers: [
