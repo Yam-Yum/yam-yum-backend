@@ -107,14 +107,6 @@ export class ChiefService {
     const recipesWithQantitiesAndFavorites =
       await this.recipeService.patchQuantityFavoriteToRecipes(currentUser, chief.recipes);
 
-    // new recipes with images url
-    const recipesWithImages = await Promise.all(
-      recipesWithQantitiesAndFavorites.map(async (recipe) => ({
-        ...recipe,
-        images: recipe.images.map((image) => this._getImageBaseUrl() + image),
-      })),
-    );
-
     // Transform the response
     return {
       id: chief.id,
@@ -129,7 +121,7 @@ export class ChiefService {
         averageRating: totalReviews > 0 ? totalRating / totalReviews : 0,
       },
       categories: uniqueCategories,
-      recipes: recipesWithImages,
+      recipes: recipesWithQantitiesAndFavorites,
     } as any;
   }
 
