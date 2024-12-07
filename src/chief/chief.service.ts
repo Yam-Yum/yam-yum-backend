@@ -4,21 +4,19 @@ import { UpdateChiefDto } from './dto/update-chief.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { Recipe } from 'src/recipe/entities/recipe.entity';
-import { Review } from 'src/review/entities/review.entity';
 import { ConfigService } from '@nestjs/config';
 import { ChiefDetailsResponseDto } from './dto/chief-details.dto';
+import { RecipeService } from 'src/recipe/recipe.service';
+import { UserInJWTPayload } from 'src/shared/interfaces/JWT-payload.interface';
 
 @Injectable()
 export class ChiefService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Recipe)
-    private readonly recipeRepository: Repository<Recipe>,
-    @InjectRepository(Review)
-    private readonly reviewRepository: Repository<Review>,
+
     private readonly configService: ConfigService,
+    private readonly recipeService: RecipeService,
   ) {}
 
   private _getImageBaseUrl(): string {
@@ -26,7 +24,10 @@ export class ChiefService {
     return baseUrl;
   }
 
-  async getChiefDetails(id: string): Promise<ChiefDetailsResponseDto> {
+  async getChiefDetails(
+    id: string,
+    currentUser?: UserInJWTPayload,
+  ): Promise<ChiefDetailsResponseDto> {
     // Get chief with recipes and their categories
     const chief = await this.userRepository.findOne({
       where: {
@@ -52,6 +53,7 @@ export class ChiefService {
           id: true,
           title: true,
           description: true,
+          ingredients: true,
           preparationTimeInMinutes: true,
           size: true,
           price: true,
@@ -102,14 +104,14 @@ export class ChiefService {
       ),
     );
 
+    const recipesWithQantitiesAndFavorites =
+      await this.recipeService.patchQuantityFavoriteToRecipes(currentUser, chief.recipes);
+
     // new recipes with images url
     const recipesWithImages = await Promise.all(
-      chief.recipes.map(async (recipe) => ({
+      recipesWithQantitiesAndFavorites.map(async (recipe) => ({
         ...recipe,
-        images: recipe.images.map((image) => ({
-          ...image,
-          imageName: this._getImageBaseUrl() + image.imageName,
-        })),
+        images: recipe.images.map((image) => this._getImageBaseUrl() + image),
       })),
     );
 
@@ -128,7 +130,7 @@ export class ChiefService {
       },
       categories: uniqueCategories,
       recipes: recipesWithImages,
-    };
+    } as any;
   }
 
   create(createChiefDto: CreateChiefDto) {

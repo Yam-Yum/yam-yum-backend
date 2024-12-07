@@ -126,5 +126,24 @@ export class AppService {
     //   await recipeRepository.save(recipe);
     // }
     // return { message: `Updated ${recipes.length} recipes with random ingredients` };
+    //  edit all chiefs images randomlly using  this list
+    //   const chiefsPropfileImages = [
+    //     'https://yam-yum-storage.s3.eu-north-1.amazonaws.com/unsplash_AXDTTuh-0UI.jpg',
+    //     'https://yam-yum-storage.s3.eu-north-1.amazonaws.com/unsplash_iv6yNy7oBqQ.jpg',
+    //     'https://yam-yum-storage.s3.eu-north-1.amazonaws.com/unsplash_pCBy1okqAu4.jpg',
+    //   ];
+    //   const chiefs = await dataSource.getRepository(User).find({
+    //     where: { role: UserRole.CHIEF },
+    //     select: { id: true, profilePicture: true },
+    //   });
+    //   for (const chief of chiefs) {
+    //     const randomImage =
+    //       chiefsPropfileImages[Math.floor(Math.random() * chiefsPropfileImages.length)];
+    //     if (chief.profilePicture !== randomImage) {
+    //       chief.profilePicture = randomImage;
+    //       await dataSource.getRepository(User).save(chief);
+    //     }
+    //   }
+    //   return { message: `Updated ${chiefs.length} chiefs with random profile images` };
   }
 }
