@@ -2,10 +2,10 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  ManyToOne,
   CreateDateColumn,
-  UpdateDateColumn,
   JoinColumn,
+  OneToOne,
+  Relation,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
@@ -36,7 +36,7 @@ export class BusinessProfileRequest {
   @Column({ nullable: true })
   reviewed_at: Date;
 
-  @ManyToOne(() => User, { nullable: false })
+  @OneToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user: Relation<User>;
 }

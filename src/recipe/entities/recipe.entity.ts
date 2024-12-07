@@ -47,6 +47,9 @@ export class Recipe {
   @Column({ type: 'text' })
   description: string;
 
+  @Column({ type: 'text', nullable: true })
+  ingredients: string;
+
   @Column({ type: 'int' })
   preparationTimeInMinutes: number;
 

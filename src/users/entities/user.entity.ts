@@ -18,6 +18,7 @@ import { Review } from 'src/review/entities/review.entity';
 import { Like } from 'src/reel/entities/like.entity';
 import { Comment } from 'src/reel/entities/comment.entity';
 import { Favorite } from 'src/favorite/entities/favorite.entity';
+import { BusinessProfileRequest } from 'src/business-profile-request/entities/business-profile-request.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -114,4 +115,9 @@ export class User {
 
   @OneToOne(() => Favorite, (favorite) => favorite.user)
   favorite: Relation<Favorite>;
+
+  @OneToOne(() => BusinessProfileRequest, (businessProfileRequest) => businessProfileRequest.user, {
+    nullable: true,
+  })
+  businessProfileRequest: Relation<BusinessProfileRequest>;
 }

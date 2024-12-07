@@ -204,7 +204,12 @@ export class RecipeService {
     // Transform recipe to include videoUrl and imageUrls
     const transformedRecipe = await this.patchQuantityFavoriteToRecipes(user, [recipe]);
 
-    return transformedRecipe[0];
+    return {
+      ...transformedRecipe[0],
+      ingredients: transformedRecipe[0].ingredients
+        ? transformedRecipe[0].ingredients.split(',').map((ingredient) => ingredient.trim())
+        : [],
+    };
   }
 
   update(id: number, updateRecipeDto: UpdateRecipeDto) {

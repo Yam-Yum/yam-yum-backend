@@ -13,4 +13,10 @@ export class AppController {
   getHomePage(@GetUser() user: UserInJWTPayload) {
     return this.appService.getHomePage(user);
   }
+
+  @SkipAuth()
+  @Get('fix')
+  fix() {
+    return this.appService.fix();
+  }
 }

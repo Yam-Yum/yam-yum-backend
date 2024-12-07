@@ -6,6 +6,7 @@ import { FilesService } from './files/files.service';
 import { UserInJWTPayload } from './shared/interfaces/JWT-payload.interface';
 import { RecipeService } from './recipe/recipe.service';
 import { ConfigService } from '@nestjs/config';
+// import { User, UserRole } from './users/entities/user.entity';
 
 @Injectable()
 export class AppService {
@@ -64,5 +65,66 @@ export class AppService {
         image: this.storageBaseUrl + category.imageName,
       })),
     };
+  }
+
+  async fix() {
+    // get all recipes authors ids and update randomlly users that its role is chief to be recipe author
+    // const recipes = await dataSource.getRepository(Recipe).find({
+    //   relations: { author: true },
+    //   select: { id: true, author: { id: true } },
+    // });
+    // const chiefs = await dataSource.getRepository(User).find({
+    //   where: { role: UserRole.CHIEF },
+    //   select: { id: true },
+    // });
+    // const chiefsIds = chiefs.map((chief) => chief.id);
+    // for (const recipe of recipes) {
+    //   const randomChiefId = chiefsIds[Math.floor(Math.random() * chiefsIds.length)];
+    //   if (recipe.author.id !== randomChiefId) {
+    //     recipe.author.id = randomChiefId;
+    //     await dataSource.getRepository(Recipe).save(recipe);
+    //   }
+    // }
+    // -------------------------
+    // const ingredients = [
+    //   'Beef patty',
+    //   'Lettuce',
+    //   'Tomato',
+    //   'Cheese',
+    //   'Ketchup',
+    //   'Pickles',
+    //   'Onion',
+    //   'Mustard',
+    //   'Bacon',
+    //   'Shrimp',
+    //   'Salmon',
+    //   'Tuna',
+    //   'Lobster',
+    //   'Crab',
+    //   'Scallops',
+    //   'Mussels',
+    //   'Calamari',
+    //   'Oysters',
+    //   'Chicken',
+    //   'Pork',
+    //   'Avocado',
+    //   'Mushrooms',
+    //   'Bell peppers',
+    //   'Eggplant',
+    //   'Zucchini',
+    //   'Hummus',
+    //   'Quinoa',
+    // ];
+    // const recipeRepository = dataSource.getRepository(Recipe);
+    // const recipes = await recipeRepository.find();
+    // for (const recipe of recipes) {
+    //   // Get 3-7 random ingredients
+    //   const numIngredients = Math.floor(Math.random() * 5) + 3;
+    //   const shuffled = [...ingredients].sort(() => 0.5 - Math.random());
+    //   const selectedIngredients = shuffled.slice(0, numIngredients);
+    //   recipe.ingredients = selectedIngredients.join(', ');
+    //   await recipeRepository.save(recipe);
+    // }
+    // return { message: `Updated ${recipes.length} recipes with random ingredients` };
   }
 }

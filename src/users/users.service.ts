@@ -101,7 +101,7 @@ export class UsersService {
   async getMe(loggedInUserId: string) {
     const loggedInUserInfo = await this._userRepository.findOne({
       where: { id: loggedInUserId },
-      relations: ['addresses', 'cart', 'favorite'],
+      relations: ['addresses', 'cart', 'favorite', 'businessProfileRequest'],
       select: {
         id: true,
         firstName: true,

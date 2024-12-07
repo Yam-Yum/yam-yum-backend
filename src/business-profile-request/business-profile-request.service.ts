@@ -13,6 +13,19 @@ export class BusinessProfileRequestService {
   ) {}
 
   create(createDto: CreateBusinessProfileRequestDto, userId: string) {
+    const businessProfileRequestExists = this.businessProfileRequestsRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (businessProfileRequestExists) {
+      // already exists Exception
+      return {
+        status: 409, // conflict
+        message: 'Business profile request already exists',
+        businessProfileRequest: businessProfileRequestExists,
+      };
+    }
+
     const request = this.businessProfileRequestsRepository.create({
       business_email: createDto.business_email,
       user: { id: userId },

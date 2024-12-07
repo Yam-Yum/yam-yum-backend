@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SkipAuth } from 'src/auth/decorators/skip-auth.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { AssignToMeDto } from './dto/assign-to-me-.dto';
@@ -12,6 +12,7 @@ import { GetAddressesByIdsDTO } from './dto/get-addresses-by-ids.dto';
 
 @ApiTags('User')
 @Controller('users')
+@ApiBearerAuth('JWt-Auth')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
