@@ -16,6 +16,7 @@ import { ReviewModule } from './review/review.module';
 import { FilesService } from './files/files.service';
 import { ReelModule } from './reel/reel.module';
 import { FavoriteModule } from './favorite/favorite.module';
+import { ChiefModule } from './chief/chief.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { FavoriteModule } from './favorite/favorite.module';
     ReviewModule,
     ReelModule,
     FavoriteModule,
+    ChiefModule,
   ],
   controllers: [AppController],
   providers: [
